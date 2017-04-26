@@ -9,11 +9,12 @@ Option = obj.Option;
 Molecule = obj.Molecule;
 Frame = obj.Frame;
 
-Result = struct;
 if isfield(Molecule,'connectedResult')
+    Result = struct; j = 1;
     for i = 1:length(Molecule)
         if ~isempty(Molecule(i).connectedResult)
-            Result(i).trajectory = Molecule(i).connectedResult;
+            Result(j).trajectory = Molecule(i).connectedResult;
+            j = j + 1;
         else
             continue
         end
@@ -46,37 +47,44 @@ for j = 1:N
         if sum(findValue) == 1
             currentTraj(j,1) = i;
             break;
-        else
-            currentTraj(j,1) = 0;
         end
         clear findValue
     end
 end
             
 [M,~] = size(img);
+img = convert2double(img);
 if strcmp(Option.illumination,'on')
-    % High pass filtering to remove uneven background
-    mid = floor(M/2)+1;
-    Img = fft2(img);
-    Img1 = fftshift(Img);
-    Img2 = Img1;
-    Img2(mid-3:mid+3,mid-3:mid+3) = min(min(Img1));
-    Img2(257,257) = Img1(257,257);
-    img1 = ifft2(ifftshift(Img2));
-    img12 = abs(img1);
-    img13 = img12-min(min(img12));
-    img14 = img13/max(max(img13));
-    % Mulitply pixels by the sum of their 8-connected neighbors to increase
-    % intensities of particles
-    img_1 = colfilt(img14,[3 3],'sliding',@colsp);
+    img1 = imopen(img,strel('diamond',7));
+    img2 = imgaussfilt(img1,14);
+    img3 = img - img2;
+    img4 = img3 + abs(min(img3(:)));
+    img5 = img4/max(img4(:));
+    img_1 = imadjust(img5);
+%     % High pass filtering to remove uneven background
+%     mid = floor(M/2)+1;
+%     Img = fft2(img);
+%     Img1 = fftshift(Img);
+%     Img2 = Img1;
+%     Img2(mid-3:mid+3,mid-3:mid+3) = min(min(Img1));
+%     Img2(257,257) = Img1(257,257);
+%     img1 = ifft2(ifftshift(Img2));
+%     img12 = abs(img1);
+%     img13 = img12-min(min(img12));
+%     img14 = img13/max(max(img13));
+%     % Mulitply pixels by the sum of their 8-connected neighbors to increase
+%     % intensities of particles
+%     img_1 = colfilt(img14,[3 3],'sliding',@colsp);
 else
     img_1 = img;
 end
 
-figure,imshow(imadjust(img_1))
+figure,imshow(img_1)
 hold on, plot(pts(:,2),pts(:,1),'co'),hold off
 for i = 1:length(pts)
-    text((double(pts(i,2))+4),double(pts(i,1)),sprintf('%d',currentTraj(i)),'Color','c');
+    if currentTraj(i) ~= 0
+        text((double(pts(i,2))+4),double(pts(i,1)),sprintf('%d',currentTraj(i)),'Color','c');
+    end
 end
 
 title(['Frame number ',num2str(index)],'Fontsize',14);

@@ -1,44 +1,32 @@
-function [molPixelIdx,BW2] = RoughScan(obj,RawImage)
+function [molPixelSub,BW2] = RoughScan(obj,RawImage,k)
 
 Option = obj.Option;
-threshold = Option.threshold;
 R = Option.spotR;
-background = Option.bg;
 img = convert2double(RawImage);
 [M,N] = size(img);
 if strcmp(Option.illumination,'on')
-    % High pass filtering to remove uneven background
-    [M,~] = size(img);
-    mid = floor(M/2)+1;
-    Img = fft2(img);
-    Img1 = fftshift(Img);
-    Img2 = Img1;
-    Img2(mid-3:mid+3,mid-3:mid+3) = min(min(Img1));
-    Img2(257,257) = Img1(257,257);
-    img1 = ifft2(ifftshift(Img2));
-    img12 = abs(img1);
-    img13 = img12-min(min(img12));
-    img14 = img13/max(max(img13));
-    % Mulitply pixels by the sum of their 8-connected neighbors to increase
-    % intensities of particles
-    % img_2 = imadjust(img14);
-    img_2 = imadjust(colfilt(img14,[3 3],'sliding',@colsp));
-else
-    img_2 = imadjust(img);
+    % Modified tophat filtering to remove uneven background
+    img1 = imopen(img,strel('diamond',7));
+    img2 = imgaussfilt(img1,14);
+    img3 = img - img2;
+    img_2 = img3 + abs(min(img3(:)));
 end
+threshold = mean(img_2(:)) + 2.5*std(img_2(:));
+obj.Frame(k).Threshold = threshold;
+obj.Option.Threshold = threshold;
 if Option.exclude
     x1 = Option.exclude(1,1);
     y1 = Option.exclude(1,2);
     x2 = Option.exclude(2,1);
     y2 = Option.exclude(2,2);
-    img_2(x1:x2,y1:y2) = 0;
+    img_2(x1:x2,y1:y2) = min(img_2(:));
 end
 if Option.include
     minval = Option.include(1,1);
     maxval = Option.include(1,2)-1;
     I = img_2(minval:maxval, minval:maxval);
     topad = (M - (maxval-minval+1))/2;
-    img_2 = padarray(I,[topad topad],background,'both');
+    img_2 = padarray(I,[topad topad],min(img_2(:)),'both');
 end
 
 BW = img_2 > threshold;
@@ -57,10 +45,10 @@ testmat8 = zeros(M+2,N+2); testmat8(2:end-1,1:end-2) = BW;
 tallymat = BWpad + testmat1 + testmat2 + testmat3 + testmat4 + testmat5 ...                                                                                          
     + testmat6 + testmat7 + testmat8;
 
-BW2 = BW.*(tallymat(2:end-1,2:end-1) > 1);
+BW2 = BW.*(tallymat(2:end-1,2:end-1) > 2); % if >1 -> there's a particle
 CC = bwconncomp(BW2);
 
-molPixelIdx = cell(1);
+molPixelSub = cell(1); molPixelIdx = zeros(length(CC.PixelIdxList),1);
 l = 1;
 for k = 1:length(CC.PixelIdxList)
     if ge(numel(CC.PixelIdxList{k}),50)
@@ -74,7 +62,8 @@ for k = 1:length(CC.PixelIdxList)
             elseif ge(img(pix),max(img(neighbors)))
                 [i,j] = ind2sub([M,N],pix);
                 if ge(i,R+1) && ge(M-R,i) && ge(j,R+1) && ge(N-R,j)
-                    molPixelIdx{l} = [i,j];
+                    molPixelSub{l} = [i,j];
+                    molPixelIdx(l) = sub2ind([M,N],i,j);
                     l = l+1;
                 end
             else
@@ -82,9 +71,10 @@ for k = 1:length(CC.PixelIdxList)
             end
         end    
     else
-        [i,j] = getcentroid(CC.PixelIdxList{k});
-        if ge(i,R+1) && ge(M-R,i) && ge(j,R+1) && ge(N-R,j)
-            molPixelIdx{l} = [i,j];
+        [i,j] = getcentroid(CC.PixelIdxList{k}); %center of image
+        if ge(i,R+1) && ge(M-R,i) && ge(j,R+1) && ge(N-R,j) %not in a corner/edge
+            molPixelSub{l} = [i,j]; 
+            molPixelIdx(l) = sub2ind([M,N],i,j);
             l = l+1;
         end
     end

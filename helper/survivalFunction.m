@@ -24,11 +24,11 @@ c = 1./(heaviside(maxT-[0,T]).*(1-([0,T]/maxT)));
 c = c(1:end-1);
 if length(c) ~= length(count)
     n = padarray(count,[0 abs(length(c) - length(count))],0,'post');
-    SF = 1-cumsum(n.*c/sum(n.*c));
+    SF = abs(1-cumsum(n.*c/sum(n.*c)));
     %sem = 0.68.*SF;%n.*c/sum(n.*c);
     sem = sqrt(SF);
 else
-    SF = 1-cumsum(count.*c/sum(count.*c));
+    SF = abs(1-cumsum(count.*c/sum(count.*c)));
     %sem = 0.68.*SF;%count.*c/sum(count.*c);
     sem = sqrt(SF);
 end
