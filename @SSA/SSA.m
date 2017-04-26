@@ -9,7 +9,7 @@ classdef SSA < handle
    end
    
    methods
-       function obj = FSMIA(filename)
+       function obj = SSA(filename)
            if nargin >0
                obj.filename = filename;
            end
