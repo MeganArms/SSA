@@ -1,4 +1,4 @@
-function C = getCoordinates(obj,exclude)
+function [C, cens] = getCoordinates(obj,spots,exclude)
 
 % This function converts the molecular indices of the trajectories in
 % obj.Result to trajectories with coordinates in microns, with [i,j] =
@@ -19,31 +19,48 @@ function C = getCoordinates(obj,exclude)
 %       accessed as gaussCoordinates{17} if you want the coordinate values
 %       (e.g. [371, 124; 371, 123]), or as gaussCoordinates(17) if you want
 %       the matrix containing the coordinate values (e.g. [2x2 double]).
+%       - CENS - vector with censoring of trajectories. Censoring is "1" if
+%       the molecule appears on the first frame, 0 otherwise.
 
 Molecule = obj.Molecule;
 Option = obj.Option;
-if isfield(Molecule,'connectedResult')
+L = length(spots);
+if isfield(Molecule,'connectEvents')
     Result = struct;
     if strcmp(exclude,'yes')
         k = 1;
         for i = 1:length(Molecule)
-            if ~isempty(Molecule(i).connectedResult) && Molecule(i).frame ~= 1 && Molecule(Molecule(i).connectedResult(end)).frame ~= length(obj.Frame)
-                Result(k).trajectory = Molecule(i).connectedResult;
+            if ~isempty(Molecule(i).connectEvents) && Molecule(i).frame ~= 1 && Molecule(Molecule(i).connectEvents(end)).frame ~= length(obj.Frame)
+                Result(k).trajectory = Molecule(i).connectEvents;
                 k = k + 1;
             end
         end
     elseif strcmp(exclude,'no')
-        k = 1;
+        k = 1; cens = zeros(L,1);
         for i = 1:length(Molecule)
-            if ~isempty(Molecule(i).connectedResult)
-                Result(k).trajectory = Molecule(i).connectedResult;
+            if ~isempty(Molecule(i).connectEvents)
+                if Molecule(i).frame == 1
+                    cens(k) = 1;
+                elseif Molecule(i).frame ~= 1
+                    cens(k) = 0;
+                end
+                Result(k).trajectory = Molecule(i).connectEvents;
                 k = k + 1;
             end
         end
     end
 else
     Result = obj.Result;
-end
+    cens = zeros(length(Result),1);
+    for k = 1:length(Result)
+        if Molecule(Result(k).trajectory(1)).frame == 1
+            cens(k) = 1
+        elseif Molecule(Result(k).trajectory(1)).frame ~= 1
+            cens(k) = 0;
+        end
+    end
+end 
+cens = logical(cens);
 C = cell(length(Result),1);
 cs = Option.pixelSize/1000; % Coordinate scaling factor from pixels to microns
 ps = 1/1000; % Parameter scaling factor from nanometers to microns

@@ -134,7 +134,7 @@ else
                 prevFrame = Molecule(molInd).frame;
                 endmolInd = Result(traj2connect_withUpdates{i}(j)).trajectory(1);
                 currentFrame = Molecule(endmolInd).frame;
-                if (currentFrame - prevFrame)*exp_time <= 1 % second
+                if (currentFrame - prevFrame)*exp_time <= 60 % seconds
                     gap = currentFrame - prevFrame - 1;
                     trajComplete{i} = [trajComplete{i}, NaN(1,gap), (Result(traj2connect_withUpdates{i}(j)).trajectory)'];
                     % Store the trajectories that have been consolidated into the

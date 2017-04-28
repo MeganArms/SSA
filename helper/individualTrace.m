@@ -24,9 +24,9 @@ for i = 1:n
         if  j <= m && ~isnan(longTraj(i).trajectory(j))
             molInd = longTraj(i).trajectory(j);
             coords = obj.Molecule(molInd).coordinate;
-            traces(i,j) = sum(sum(img(coords(1)-1:coords(1)+1,coords(2)-1:coords(2)+1,j)));
+            traces(i,j) = sum(sum(img(coords(1)-1:coords(1)+1,coords(2)-1:coords(2)+1,j)))/9;
         else
-            traces(i,j) = sum(sum(img(coords(1)-1:coords(1)+1,coords(2)-1:coords(2)+1,j)));
+            traces(i,j) = sum(sum(img(coords(1)-1:coords(1)+1,coords(2)-1:coords(2)+1,j)))/9;
         end
         
     end

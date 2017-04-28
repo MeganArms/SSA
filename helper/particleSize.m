@@ -8,7 +8,9 @@ function S = particleSize(obj,varargin)
 % experimental condition) to get the overall histogram of intensities.
 
 Molecule = obj.Molecule;
-longTraj = obj.Result;
+if length(varagin) >= 1 && ~strcmp(varargin{1},'longTraj') || isempty(varargin)
+    longTraj = obj.Result;
+end
 pixelSize = obj.Option.pixelSize;
 R = obj.Option.spotR;
 % Analyze molecules that appear on multiple frames and get their average
@@ -33,7 +35,7 @@ for i = 1:length(longTraj)
                end
                [Size(j,1), Size(j,2)] = fitVolume(mIndex,Molecule);
                obj.Molecule(mIndex).volume = Size(j,1);
-               obj.Molecule(mIndex).maxInt = Size(j,2);
+               obj.Molecule(mIndex).maxInt = Size(j,2); % Change this to the sum of 9 central
            elseif isfield(Molecule,'area') %centroid -> fast
                a = Molecule(mIndex).area;
                Width(j) = sqrt(a/pi);
@@ -134,7 +136,7 @@ end
     end
 
 % Plot intensity versus sigma and hist of intensities if plotting is on
-if length(varargin) >= 1 && strcmp(varargin{1},'on')
+if length(varargin) >= 1 && strcmp(varargin{2},'on') || strcmp(varargin{1},'on')
     figure, 
     subplot(1,2,1), plot(obj.Intensity(:,4),obj.Intensity(:,1),'o');
     xlabel('Standard Deviation of Fits ({\mu}m)'), ylabel('Intensity (a.u.)');

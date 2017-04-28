@@ -54,7 +54,7 @@ for k = 1:length(molPixelIdx)
         obj.Molecule(NumMolecule+k).volume = sum(sum(subImage(pxlist) - min(min(subImage))))*max(img(:));    
         obj.Molecule(NumMolecule+k).area = length(pxlist)*Option.pixelSize^2;
         obj.Molecule(NumMolecule+k).maxInt = max(max(subImage))*max(img(:));
-    elseif strcmp(Option.fitting,'slow') % && strcmp(Option.isolation,'fast')
+    elseif strcmp(Option.fitting,'slow')
         % Eliminate potential molecules in ROI
         edgeThreshold = Option.threshold;
         edgeImage = subImage; edgeImage(3:end-2, 3:end-2) = 0;
@@ -67,56 +67,7 @@ for k = 1:length(molPixelIdx)
             disp(subImage);
             continue
         end
-        % For error analysis
-%         if obj.Molecule(NumMolecule+k).gof.rsquare < .85
-%             fprintf('%d, %d, rsquare = %d, SSE = %d\n',i,j,obj.Molecule(NumMolecule+k).gof.rsquare,obj.Molecule(NumMolecule+k).gof.sse);
-%             figure,subplot(1,2,1),surf(subImage),subplot(1,2,2),plot(obj.Molecule(NumMolecule+k).fit)
-%             choice = menu('Continue or Stop?','Continue','Stop');
-%             if choice == 1
-%                 close(gcf);
-%                 continue
-%             else
-%                 break
-%             end
-%         end
-%             
-%     elseif strcmp(Option.fitting,'slow') && strcmp(Option.isolation,'slow')
-%         % Determine if neighbor molecule is in ROI and find edgeTH
-%         try
-%             [F1,G1] = fit2D(obj,subImage);
-%         catch
-%             disp('Unable to fit 2D Gaussian for the following molecule:');
-%             fprintf('%d, %d\n',i,j);
-%             disp(subImage);
-%             continue
-%         end
-%         subsubImage = subImage(3:end-2, 3:end-2);
-%         try
-%             [F2,G2] = fit2D(obj,subsubImage);
-%         catch
-%             disp('Unable to fit small 2D Gaussian for the following molecule:');
-%             fprintf('%d, %d\n',i,j);
-%             disp(subsubImage);
-%             continue
-%         end
-%         if G2.rsquare > G1.rsquare
-%             % Neighbor molecule is in the ROI
-%             edgeThreshold = F2.A*exp((-(160-F2.x0)^2-(160-F2.y0)^2)/(2*F2.sigma^2))+F2.z0;
-%             edgeImage = subImage; edgeImage(3:end-2, 3:end-2) = 0;
-%             subImage(edgeImage > edgeThreshold) = min(min(subImage));
-%             try
-%                 [obj.Molecule(NumMolecule+k).fit,obj.Molecule(NumMolecule+k).gof] = fit2D(obj,subImage);
-%             catch
-%                 disp('Unable to fit 2D Gaussian for the following molecule with adjusted ROI:');
-%                 fprintf('%d, %d\n',i,j);
-%                 disp(subImage);
-%                 continue
-%             end
-%         else
-%             % Neighbor molecule is not in the ROI
-%             obj.Molecule(NumMolecule+k).fit = F1;
-%             obj.Molecule(NumMolecule+k).gof = G1;
-%         end
+
     end
     obj.Molecule(NumMolecule+k).coordinate = [i j];
 end
