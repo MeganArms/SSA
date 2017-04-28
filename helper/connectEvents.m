@@ -217,6 +217,10 @@ else
                 sortedTrajectories = [sortedTrajectories; i];
             end
         end
+
+        for i = 1:length(spotEvents)
+            obj.Molecule(spotEvents(i).trajectory(1)).connectEvents = spotEvents(i).trajectory';
+        end
         
         disp(sortedTrajectories)
     end
