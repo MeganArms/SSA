@@ -1,22 +1,22 @@
 function [B, steps] = photobleach(traces,et)
 
 T = length(traces);
-steps = cell(T,2)
+steps = cell(T,2);
 B = zeros(T,1);
+tic;
 for k = 1:T
-	tic
 	% Get individual trace and add time data
 	dat = [traces(k,:); et:et:length(traces(k,:))*et];
 	% Detect photobleaching steps
-	rv = stepdetect(dat,k);
+	rv = stepdetect(dat,0);
 	% Indicate censoring as 1 if there are photobleaching steps
-	if sum(rv{2}{2} < 0) > 0
-		B(k) = 1
+	if ~isempty(rv) || sum(rv{2}{2} < 0) > 0
+		B(k) = 1;
 	else
 		B(k) = 0;
 	end
 	% Keep all results in one cell
-	steps(k,:) = rv(k,:);
+	steps(k,:) = rv(1,:);
 	% Display progress
 	if k == round(0.1*T)
 		t = toc;

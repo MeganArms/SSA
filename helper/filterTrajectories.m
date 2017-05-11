@@ -31,7 +31,7 @@ Molecule = obj.Molecule;
 Option = obj.Option;
 L = length(spots);
 T = length(obj.Frame);
-if isfield(Molecule,'connectEvents')
+if isfield(Molecule,'connectEvents') || isfield(Molecule,'connectedResult')
     Result = struct;
     if strcmp(exclude,'yes') % When there is photobleaching detection, this case will also need a cens vector
         k = 1; cens = zeros(L,1);

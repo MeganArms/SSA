@@ -67,13 +67,15 @@ tflag = 1; % flag for updating chi_sq_min
 step_num = 0;
 steps = [];
 % Residual noise level for step detection
-noise_level = std(dat(1,:) - filter_median(dat(1,:),4))^2;
+medfiltered = filter_median(dat(1,:),floor(winsize/2));
+noise_level = std(dat(1,:) - medfiltered)^2;
+% Coarse-grain filtering to locate ROIs for steps
 
 while tindx <= length(dat(2,:))
 	tstep = dat(2,tindx);
 	%--- define Heaviside fitting function ---
-	chi2_heaviside = inline(['sum(([' num2str(rawdat(1,:)) ']-inarg(1)*([' ...
-        num2str(rawdat(2,:)) ']>' num2str(tstep) ')-inarg(2)).^2)'],'inarg');
+    intensities = rawdat(1,:); timevec = rawdat(2,:); 
+    chi2_heaviside = @(x)sum((intensities - x(1)*(timevec > tstep) - x(2)).^2);
 	%--- try different step guesses ---
 	% gstep(1)
 	inarg(1) = gstep(1);
@@ -169,7 +171,7 @@ if step_num > 0
     % remove small steps that are smaller than 1x standard deviation of local noise level
     % get local noise level backing up noise_window steps
     x_range = steps(1,:);
-    noise_window = 10;
+    noise_window = winsize;
     filter_matrix = ones(size(steps(2,:)));
     for l = 1:length(x_range)
         if (x_range(l) - noise_window) <= 0
@@ -188,7 +190,7 @@ if step_num > 0
     filter_matrix = repmat(filter_matrix, [size(steps(:,1)), 1]);
     steps = reshape(steps(logical(filter_matrix)),[size(steps(:,1)), sum(filter_matrix(1,:))]);
     
-    % Update step size to accound for deletion of small stpes
+    % Update step size to account for deletion of small stpes
     % Remove extra deep steps
     for p = 1:length(steps(3,:)) - 1
         steps(2,p) = steps(3,p+1) - steps(3,p);
