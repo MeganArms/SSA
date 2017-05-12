@@ -37,17 +37,7 @@
 %           dat(2,:) = time information
 %    fig_num == figure number; 0 for no display
 
-function rv = stepdetect(dat,fig_num)
-
-% Label trajectories that experience photobleaching using median filtering
-% and convultion with the Heaviside function.
-%
-% INPUT
-%	- TRACES: Output from individualTrace - intensity traces of connected
-%	events.
-% OUTPUT
-%	- B: Vector of 1s and 0s indicating if photobleaching occured or not.
-%	A 1 indicates photobleaching and a 0 indicates no photobleaching.
+function rv = stepdetect(dat,fig_num,et)
 
 % Default scan window size
 winsize = 9;
@@ -73,13 +63,13 @@ noise_level = std(dat(1,:) - medfiltered)^2;
 th = median(movvar(dat(1,:),winsize,'Endpoints','shrink'));
 padsize = ceil(winsize/2);
 padd = padarray(dat(1,:),[0 padsize],'symmetric');
-fpadd = nlfilter(padd,[1 winsize],@thcheck,th);
+fpadd = nlfilter_ma(padd,[1 winsize],@thcheck,th);
 f_win = fpadd(padsize+1:end-padsize);
 padsize = ceil(winsize/2)*10;
 padd = padarray(dat(1,:),[0 padsize],'symmetric');
-fpadd = nlfilter(padd,[1 10*winsize],@thcheck,th);
+fpadd = nlfilter_ma(padd,[1 10*winsize],@thcheck,th);
 f_largewin = fpadd(padsize+1:end-padsize);
-mask = max([f_win; f_largewin]);
+mask = imdilate(max([f_win; f_largewin]),strel('line',10*winsize,0));
 timevec = dat(2,:);
 tloc = timevec(logical(mask));
 stepindices = 1:length(dat(1,:));
@@ -185,7 +175,7 @@ if step_num > 0
     
     % remove small steps that are smaller than 1x standard deviation of local noise level
     % get local noise level backing up noise_window steps
-    x_range = steps(1,:);
+    x_range = steps(1,:)./et;
     noise_window = winsize;
     filter_matrix = ones(size(steps(2,:)));
     for l = 1:length(x_range)

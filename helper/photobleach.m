@@ -1,5 +1,5 @@
 function [B, steps] = photobleach(traces,et)
-
+% Time is output in indices, must mulitply by lag time to get actual pb times
 T = length(traces);
 steps = cell(T,2);
 B = zeros(T,1);
@@ -8,7 +8,7 @@ for k = 1:T
 	% Get individual trace and add time data
 	dat = [traces(k,:); et:et:length(traces(k,:))*et];
 	% Detect photobleaching steps
-	rv = stepdetect(dat,0);
+	rv = stepdetect(dat,0,et); 
 	% Indicate censoring as 1 if there are photobleaching steps
 	if ~isempty(rv) || sum(rv{2}{2} < 0) > 0
 		B(k) = 1;
