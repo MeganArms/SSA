@@ -71,24 +71,26 @@ medfiltered = filter_median(dat(1,:),floor(winsize/2));
 noise_level = std(dat(1,:) - medfiltered)^2;
 % Coarse-grain filtering to locate ROIs for steps
 th = median(movvar(dat(1,:),winsize,'Endpoints','shrink'));
-padd = padarray(dat(1,:),[0 ceil(winsize/2)],'symmetric');
+padsize = ceil(winsize/2);
+padd = padarray(dat(1,:),[0 padsize],'symmetric');
 fpadd = nlfilter(padd,[1 winsize],@thcheck,th);
-f_win = fpadd(winsize+1:end-winsize);
-padd = padarray(dat(1,:),[0 ceil(winsize/2)*10)],'symmetric');
+f_win = fpadd(padsize+1:end-padsize);
+padsize = ceil(winsize/2)*10;
+padd = padarray(dat(1,:),[0 padsize],'symmetric');
 fpadd = nlfilter(padd,[1 10*winsize],@thcheck,th);
-f_largewin = fpadd(winsize+1:end=winsize);
+f_largewin = fpadd(padsize+1:end-padsize);
 mask = max([f_win; f_largewin]);
-indxs = 1:length(dat(2,:));
-tloc = indxs(mask);
+timevec = dat(2,:);
+tloc = timevec(logical(mask));
 stepindices = 1:length(dat(1,:));
-sloc = stepindices(mask);
+sloc = stepindices(logical(mask));
 
 while tindx <= length(tloc)
 	tstep = tloc(tindx);
     sindx = sloc(tindx); % frame number
 	%--- define Heaviside fitting function ---
-    intensities = rawdat(1,:); timevec = rawdat(2,:); 
-    chi2_heaviside = @(x)sum((intensities - x(1)*(timevec > tstep) - x(2)).^2);
+    intensities = rawdat(1,:); timevecwin = rawdat(2,:); 
+    chi2_heaviside = @(x)sum((intensities - x(1)*(timevecwin > tstep) - x(2)).^2);
 	%--- try different step guesses ---
 	% gstep(1)
 	inarg(1) = gstep(1);
