@@ -70,9 +70,22 @@ steps = [];
 medfiltered = filter_median(dat(1,:),floor(winsize/2));
 noise_level = std(dat(1,:) - medfiltered)^2;
 % Coarse-grain filtering to locate ROIs for steps
+th = median(movvar(dat(1,:),winsize,'Endpoints','shrink'));
+padd = padarray(dat(1,:),[0 ceil(winsize/2)],'symmetric');
+fpadd = nlfilter(padd,[1 winsize],@thcheck,th);
+f_win = fpadd(winsize+1:end-winsize);
+padd = padarray(dat(1,:),[0 ceil(winsize/2)*10)],'symmetric');
+fpadd = nlfilter(padd,[1 10*winsize],@thcheck,th);
+f_largewin = fpadd(winsize+1:end=winsize);
+mask = max([f_win; f_largewin]);
+indxs = 1:length(dat(2,:));
+tloc = indxs(mask);
+stepindices = 1:length(dat(1,:));
+sloc = stepindices(mask);
 
-while tindx <= length(dat(2,:))
-	tstep = dat(2,tindx);
+while tindx <= length(tloc)
+	tstep = tloc(tindx);
+    sindx = sloc(tindx); % frame number
 	%--- define Heaviside fitting function ---
     intensities = rawdat(1,:); timevec = rawdat(2,:); 
     chi2_heaviside = @(x)sum((intensities - x(1)*(timevec > tstep) - x(2)).^2);
@@ -105,10 +118,10 @@ while tindx <= length(dat(2,:))
         if cntindx == winsize % update window flag for step scanning
             tflag = 1; % resize window when scan index reaches the end of scan window
             cntindx = 1;
-            if tindx + winsize - 1 >= length(dat(2,:))
+            if sindx + winsize - 1 >= length(dat(2,:))
                 rawdat = dat(:,winref:end);
             else
-                rawdat = dat(:,winref:tindx + winsize - 1);
+                rawdat = dat(:,winref:sindx + winsize - 1);
             end
         end
         % Step detection criteria are set here:
@@ -119,21 +132,21 @@ while tindx <= length(dat(2,:))
         step_num = step_num + 1;
         if step_num == 1 % record first stem
             dstep = outarg(1,1);
-            baseline = mean(dat(1,1:tindx - 2)); % refine the first baseline
+            baseline = mean(dat(1,1:sindx - 2)); % refine the first baseline
         else
-            baseline = mean(dat(1,(sum((dat(2,:) < steps(1,step_num - 1))) + 2):tindx - 2));
+            baseline = mean(dat(1,(sum((dat(2,:) < steps(1,step_num - 1))) + 2):sindx - 2));
             steps(2,step_num - 1) = baseline - steps(3,step_num - 1); % refine previous step size
         end
         inarg = [dstep, baseline + dstep]; % set initial guesses for the next round
-        steps = [steps [mean(dat(2,tindx + [-1, 0])); dstep; baseline]]; % record a step detected
+        steps = [steps [mean(dat(2,sindx + [-1, 0])); dstep; baseline]]; % record a step detected
         
         tflag = 1; % reset windowflag for a new window
-        winref = tindx;
+        winref = sindx;
         cntindx = 1; % reset scan index
-        if tindx + winsize - 1 >= length(dat(2,:))
-            rawdat = dat(:,tindx:length(dat(2,:)));
+        if sindx + winsize - 1 >= length(dat(2,:))
+            rawdat = dat(:,sindx:length(dat(2,:)));
         else
-            rawdat = dat(:,tindx:tindx+winsize-1);
+            rawdat = dat(:,sindx:sindx+winsize-1);
         end
     else % no step is detected
         inarg = outarg; % no change in min_chi_sq
@@ -142,10 +155,10 @@ while tindx <= length(dat(2,:))
         if cntindx == winsize
             tflag = 1;
             cntindx = 1;
-            if tindx + winsize - 1 >= length(dat(2,:))
+            if sindx + winsize - 1 >= length(dat(2,:))
                 rawdat = dat(:,winref:length(dat(2,:)));
             else
-                rawdat = dat(:,winref:tindx + winsize - 1);
+                rawdat = dat(:,winref:sindx + winsize - 1);
             end
         end
     end
