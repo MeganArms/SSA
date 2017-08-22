@@ -84,15 +84,15 @@ while tindx <= length(tloc)
 	%--- try different step guesses ---
 	% gstep(1)
 	inarg(1) = gstep(1);
-	outarg = fminsearch(chi2_heaviside,inarg,optimset('MaxFunEvals',1e20,'MaxIter',1e10));
+	outarg = fminsearch(chi2_heaviside,inarg);
 	chi_sq1 = sum((rawdat(1,:)-outarg(1)*(rawdat(2,:)>tstep)-outarg(2)).^2);
 	% gstep(2)
 	inarg(1) = gstep(2);
-	outarg = fminsearch(chi2_heaviside,inarg,optimset('MaxFunEvals',1e20,'MaxIter',1e10));
+	outarg = fminsearch(chi2_heaviside,inarg);
 	chi_sq2 = sum((rawdat(1,:)-outarg(1)*(rawdat(2,:)>tstep)-outarg(2)).^2);
 	% gstep(3) 
 	inarg(1) = gstep(3);
-	outarg=fminsearch(chi2_heaviside,inarg, optimset('MaxFunEvals',1e20,'MaxIter',1e10));
+	outarg=fminsearch(chi2_heaviside,inarg);
     chi_sq3=sum((rawdat(1,:)-outarg(1)*(rawdat(2,:)>tstep)-outarg(2)).^2);
     chi_sq = min([chi_sq1 chi_sq2 chi_sq3]);
     dat_num = length(rawdat(1,:)); % number of points used in calculating the chi square.

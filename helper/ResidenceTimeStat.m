@@ -1,4 +1,4 @@
-function [count, edges] = ResidenceTimeStat(traj,d0,dstart,varargin)
+function [count, edges] = ResidenceTimeStat(traj,varargin)
 % RESIDENCETIMESTAT calculates the distribution of residence time.
 %
 % INPUT:
@@ -10,9 +10,10 @@ function [count, edges] = ResidenceTimeStat(traj,d0,dstart,varargin)
 % OUTPUT:
 %   - COUNT - number of trajectories corresponding to specific residence
 %   time.
-t0 = datetime(d0,'InputFormat','yyyyMMdd HHmmss');
-tstart = datetime(dstart,'InputFormat','yyyyMMdd HHmmss');
-L = datenum(tstart - t0)*24*60*60;
+% t0 = datetime(d0,'InputFormat','yyyyMMdd HHmmss');
+% tstart = datetime(dstart,'InputFormat','yyyyMMdd HHmmss');
+% L = datenum(tstart - t0)*24*60*60;
+L = 0;
 reside = cellfun(@length,traj);
 % Default bin edges
 edges = (min(reside)-0.5):1:(max(reside)+0.5);
