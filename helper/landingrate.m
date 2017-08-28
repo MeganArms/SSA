@@ -14,7 +14,7 @@ function z = landingrate(F,Nframes,lag,plotting)
 
 longTrajs = F(cellfun(@length,F) > 2);
 y = cellfun(@(x) x(1), longTrajs);
-
+% Get the number of events that start on each frame
 N = zeros(Nframes,1);
 for t = 1:Nframes
     N(t) = sum(y == t);

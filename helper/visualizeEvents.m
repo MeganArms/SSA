@@ -18,31 +18,43 @@ indLengths = cell2mat(indLengths);
 % Only take the pixels that are landed on more than once
 [sortedUniqueInds_inTraj, inds] = sort(uniqueInds_inTraj);
 sortedIndLengths = indLengths(inds);
-repeatInds_allTraj = sortedUniqueInds_inTraj(diff(sortedUniqueInds_inTraj) == 0); 
-indLengths_allTraj = sortedIndLengths(diff(sortedUniqueInds_inTraj) == 0);
+tmp = diff(sortedUniqueInds_inTraj)==0;
+tmpdiff = diff(tmp);
+indtokeep = tmp | [0;(tmpdiff<0)];
+repeatInds_allTraj = sortedUniqueInds_inTraj(indtokeep); 
+indLengths_allTraj = sortedIndLengths(indtokeep);
 
-% Get the frequency image of locations
+% Get the frequency of locations
 edges = 0.5:1:(512)^2+0.5;
 [counts,edges] = histcounts(repeatInds_allTraj,edges);
-counts(counts>0) = counts(counts>0)+1;
-countsIm = reshape(counts,[512 512]);
+
+% Get the lifetime of each spot
 % This only works because the length data is sorted in the order of the
 % frequency data and the bin size is - actually the bin size doesn't matter
-% lifetimefreq = zeros(length(counts)-1,1); l = 1;
-% for k = 1:length(counts)-1
-%     lifetimestotake = counts(k);
-%     if lifetimestotake ~= 0
-%         lifetimefreq(k) = mean(indLengths_allTraj(l:l+lifetimestotake-1));
-%         l = l+lifetimestotake;
-%     end
-% end
+lifetimefreq = zeros(length(counts),1); l = 1;
+for k = 1:length(counts)
+    lifetimestotake = counts(k);
+    if lifetimestotake ~= 0
+        lifetimefreq(k) = mean(indLengths_allTraj(l:l+lifetimestotake-1));
+        l = l+lifetimestotake;
+    end
+end
 
 % Visualize
-zerospots = find(countsIm == 0);
+countsIm = reshape(counts,[512 512]);
 clearBG = countsIm;
-clearBG(zerospots) = NaN;
+clearBG(countsIm==0) = NaN;
 figure,mesh(clearBG);
 xlabel('X','FontSize',14), ylabel('Y','FontSize',14)
 zlabel('f(Events)','FontSize',14)
 title('Event Frequency','FontSize',16);
 h = gca; h.YLim = [0 512]; h.XLim = [0 512]; clear h
+
+lifetimeIm = reshape(lifetimefreq,[512 512]);
+clearBG = lifetimeIm;
+clearBG(lifetimeIm==0) = NaN;
+figure,mesh(clearBG);
+xlabel('X','FontSize',14), ylabel('Y','FontSize',14)
+zlabel('f(Events)','FontSize',14)
+title('Event Lifetime','FontSize',16);
+h = gca; h.YLim = [0 512]; h.XLim = [0 512]; colorbar; clear h
