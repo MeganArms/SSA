@@ -1,28 +1,34 @@
-spotEvents = connectEvents_rp(R,C,F,2);
-spots = struct2table(spotEvents);
-events = spots.trajectory;
+% spotEvents = connectEvents_rp(R,C,F,2);
+% spots = struct2table(spotEvents);
+% events = spots.trajectory;
 
 % Find any indices that are visited by multiple molecules
 coords = C(cellfun(@length,C)>2);
+brightnesses = B(cellfun(@length,B)>2);
 intCoords = cellfun(@(x) round(x'),coords,'UniformOutput',0);
 intInds = cellfun(@(x) sub2ind([512 512],x(:,1),x(:,2)),intCoords,'UniformOutput',0);
 % If the trajectory is on multiple pixels, the pixels are counted individually
 uniqueInds_inTraj = cell(length(intInds),1);
+uniqueBright = cell(length(intInds),1);
 indLengths = cell(length(intInds),1);
 for k = 1:length(intInds)
-    uniqueInds_inTraj{k} = unique(intInds{k});
+    [uniqueInds_inTraj{k},ia,~] = unique(intInds{k}); 
+    b = brightnesses{k}; uniqueBright{k} = b(ia)';
     indLengths{k} = repmat(length(intInds{k}),[length(uniqueInds_inTraj{k}) 1]);
 end
 uniqueInds_inTraj = cell2mat(uniqueInds_inTraj); 
 indLengths = cell2mat(indLengths);
+uniqueBright = cell2mat(uniqueBright);
 % Only take the pixels that are landed on more than once
 [sortedUniqueInds_inTraj, inds] = sort(uniqueInds_inTraj);
 sortedIndLengths = indLengths(inds);
+sortedBright = uniqueBright(inds);
 tmp = diff(sortedUniqueInds_inTraj)==0;
 tmpdiff = diff(tmp);
 indtokeep = tmp | [0;(tmpdiff<0)];
 repeatInds_allTraj = sortedUniqueInds_inTraj(indtokeep); 
 indLengths_allTraj = sortedIndLengths(indtokeep);
+brightnesses_allTraj = sortedBright(indtokeep);
 
 % Get the frequency of locations
 edges = 0.5:1:(512)^2+0.5;

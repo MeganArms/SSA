@@ -1,4 +1,4 @@
-function [C,B,F,M,R] = collate(objs_link)
+function [C,B,F,M,R,Frame] = collate(objs_link)
 
 % Collate trajectories
 numTrajs = max(objs_link(6,:));
@@ -17,4 +17,10 @@ for I = 1:numTrajs
     F{I} = frames(trkID == I);
     M{I} = indices(trkID == I);
     R(I).trajectory = indices(trkID == I);
+end
+
+Nframes = max(objs_link(5,:));
+Frame = cell(Nframes,1); % The objs_link index of the molecules on each frame
+for i = 1:Nframes
+Frame{i} = find(objs_link(5,:)==i);
 end

@@ -1,4 +1,4 @@
-function I = avgbg(varargin)
+function [I, maxint] = avgbg(varargin)
 
 % AVGBG Gets the average background intensity of each frame of a video
 % file. Any objects in the foreground and removed and the average intensity
@@ -23,13 +23,14 @@ else
 end
 
 Nframes = length(imfinfo(filename));
-avgint = cell(Nframes,2);
+avgint = cell(Nframes,2); maxint = zeros(Nframes,1);
 h = waitbar(0,'Analyzing background levels...');
 for i = 1:Nframes
     img = imread(filename,i);
     I1 = imopen(img,strel('diamond',11));
     avgint{i,1} = histcounts(I1(:),'Normalization','pdf');
     avgint{i,2} = mean(I1(:));
+    maxint(i) = max(max(imgaussfilt(I1,2)));
     waitbar(i/Nframes)
 end
 close(h)
