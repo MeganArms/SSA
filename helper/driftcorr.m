@@ -3,7 +3,7 @@
 % Use Frame to collect the coordinates of the particles on the frames in
 % the interval of interest, want to minimize the for loops
 ps = 160; % nm, pixel size
-slices = 10;
+slices = 50;
 T = floor(Nframes/slices);
 m = 512;
 N = zeros(m,m,slices);
@@ -80,22 +80,46 @@ for k = 1:length(Flong)
     XC(k,inds) = Clong{k}(1,:);
     YC(k,inds) = Clong{k}(2,:);
 end
-% Correct the displacements
-dXC = diff(XC,1,2)*ps; dYC = diff(YC,1,2)*ps;
-xcorr = [NaN(1,T-1),cumsum(xq(T:end))]; ycorr = [NaN(1,T-1),cumsum(yq(T:end))];
-XCcorr = XC - xcorr; YCcorr = YC - ycorr;
-% dXCcorr = dXC - xq; dYCcorr = dYC - yq;
-% Convert displacements back into coordinates - this only corrects drift
-% after the initial point. Need to correct it over the whole thing, i.e.
-% even the first point in a trajectory that appears in the middle of the
-% video has experienced drift.
-firstind = find(~isnan(XC(k,:)),1);
-firstcoord = XC(k,firstind);
-XCcorr(k,firstind:end) = [firstcoord, firstcoord + cumsum(dXCcorr(k,firstind:end,'omitnan'))];
+% Correct the displacements with the sum of displacement up to that point
+xcorr = [NaN(1,T),cumsum(xq(T:end))]; ycorr = [NaN(1,T),cumsum(yq(T:end))];
+% xcorr(isnan(xcorr)) = []; ycorr(isnan(ycorr)) = []; 
+% XC(isnan(XC)) = []; YC(isnan(YC)) = [];
+XCcorr = XC - xcorr/ps; YCcorr = YC - ycorr/ps;
+% Plot the cumsum drift correction
 
-XCcorr = XC + xcorr;
+Ccorr = cell(size(Clong));
+for k = 1:length(Ccorr)
+    xs = XCcorr(k,:); ys = YCcorr(k,:); 
+    xs(isnan(xs))=[];ys(isnan(ys)) = [];
+    % Concatenate the new coordinates with frame numbers
+    if ~isempty(xs)
+        frames = Flong{k};
+        frames = frames(frames>T);
+        Ccorr{k} = [xs;ys;frames];
+    end  
+end
 
+Ccorr = cellfun(@(x) x',Ccorr,'UniformOutput',0);
+Ccorrmat = cell2mat(Ccorr);
+Clong_col = cellfun(@(x) x',Clong,'UniformOutput',0); 
+Flong_col = cellfun(@(x) x',Flong,'UniformOutput',0);
+Clongmat = cell2mat(Clong_col); Flongmat = cell2mat(Flong_col);
+orig = [Clongmat,Flongmat];
 
+% Display corrected points
+figure, h = gca; h.XLim = [1 512]; h.YLim = [1 512]; hold on
+for k = T:Nframes
+    centers = Ccorrmat(Ccorrmat(:,3) == k,1:2);
+    radii = repmat(3,length(centers),1);
+    plot(centers(:,1),512-centers(:,2),'g.')
+    % viscircles(h,centers,radii,'Color','g');
+    origcenters = orig(orig(:,3) == k,1:2);
+    radii = repmat(5,length(origcenters),1);
+    plot(origcenters(:,1),512-origcenters(:,2),'r.')
+    % viscircles(h,origcenters,radii,'Color','r');
+    pause(0.05);
+end
+% Check that the units are right for the original coordinates
 
 
 
