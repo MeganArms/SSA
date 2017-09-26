@@ -1,7 +1,6 @@
 % Drift Correction 2 - center of mass shift
 
 % Convert cell indexing to matrices of coordinates
-dCOM = zeros(Nframes-1,2);
 trkID = objs_link(6,:); numTrajs = max(trkID); 
 trks = cell(numTrajs,1); frms = trks;
 XC = NaN(length(trks),Nframes); YC = XC;
@@ -14,8 +13,12 @@ end
 
 % Get center of mass displacements
 % h = waitbar(0,'Analyzing...');
+% dx = zeros(numTrajs,Nframes-1); dy = dx;
+dCOM = zeros(Nframes-1,2);
 for k = 2:Nframes
     ind = ~isnan(XC(:,k-1)) & ~isnan(XC(:,k));
+%     dx(k-1,:) = diff([XC(ind,k-1),XC(ind,k)],1,2);
+%     dy(k-1,:) = diff([YC(ind,k-1),YC(ind,k)],1,2);
     COM1 = [mean(XC(ind,k-1)),mean(YC(ind,k-1))];
     COM2 = [mean(XC(ind,k)),mean(YC(ind,k))];
     dCOM(k-1,:) = [COM2(1)-COM1(1),COM2(2)-COM1(2)];
