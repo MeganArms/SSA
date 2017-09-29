@@ -1,5 +1,6 @@
 function [m, b, ib, imstd] = staticnoise(filename)
-
+% Get the static noise information from a signal-free video with identical
+% imaging parameters to that of the video with signal.
 iminf = imfinfo(filename); nFrames = length(iminf);
 M = iminf.Width; diffBG = zeros(M,M,nFrames-1);
 ipn = zeros(nFrames,1); ips = ipn; 
