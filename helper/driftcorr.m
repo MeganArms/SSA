@@ -8,8 +8,11 @@ slices = 10;
 T = floor(Nframes/slices);
 m = 512; n = 512;
 N = zeros(m,m,slices); % Ndil = N;
-D = zeros(m,m,slices-1);
+% D = zeros(m,m,slices-1);
 corrmax = zeros(slices-1,1);
+I = zeros(slices-1,1); J = zeros(slices-1,1);
+Ilo = I; Iup = I; Jlo = J; Jup = J;
+
 % Keep long trajs only
 K = M(cellfun(@length,M)>T);
 inds2keep = cat(2,K{:});
@@ -19,6 +22,7 @@ for i = 1:Nframes
     Frame2{i} = find(objsLinked(5,:)==i);
 end
 
+h = waitbar(0,'Analyzing...');
 Xedges = m/n/2:m/n:n+m/n/2; Yedges = Xedges;
 partperint = zeros(slices,1);
 for k = 1:slices
@@ -36,26 +40,50 @@ for k = 1:slices
         continue
     else
         tmp = xcorr2(N(:,:,k-1),N(:,:,k));
-        D(:,:,k-1) = tmp(m/2+1:m+m/2,m/2+1:m+m/2);
+        D = tmp(m/2+1:m+m/2,m/2+1:m+m/2);
         % Get location of maximum correlation
         % Smooth correlation matrix
-        
-        corrmax(k-1) = find(D(:,:,k-1) == max(max(D(:,:,k-1),[],1),[],2),1);
+%         H = fspecial('average',3);
+%         smoothD = imfilter(D,H,'circular','same');
+%         x = 1:size(smoothD,1);
+%         % Solve for the max as defined by a paraboloid surface
+%         [I(k-1),J(k-1)] = interpCorr(D,m);
+%         % Fit Gaussian to entire image (slow!)
+%         f = imgaussfit(smoothD); 
+%         CI = confint(f);
+%         % Extract coefficients
+%         Ilo(k-1) = CI(1,3); Jlo(k-1) = CI(1,4);
+%         I(k-1) = f.x0; J(k-1) = f.y0;
+%         Iup(k-1) = CI(2,3); Jup(k-1) = CI(2,4);
+        % Find first maximum in the image
+        corrmax(k-1) = find(D == max(max(D,[],1),[],2),1);
     end
+    waitbar(k/slices);
 end
+close(h); clear h
 
 % Find the difference 
 [I,J] = ind2sub([m m],corrmax);
 dI = I-m/2; dJ = J-m/2;
 Ivect = cumsum(dI); Jvect = cumsum(dJ);
+% Ivect = cumsum(I); Jvect = cumsum(J);
+% Iupvect = (Iup-m/2 - dI) + Ivect; Ilovect = Ivect - (dI - (Ilo-m/2));
+% Jupvect = (Jup-m/2 - dJ) + Jvect; Jlovect = Jvect - (dJ - (Jlo-m/2)); 
 ints = round(linspace(et*T,et*Nframes,slices-1));
-% figure,plot(ints,dI,'k.-',ints,dJ,'b^-')
-figure,plot(ints,Ivect,'k.-',ints,Jvect,'b^-')
-title([num2str(slices),' slices, ',num2str(mean(partperint)),' particles per interval'])
+% figure,plot(ints,I,'k.-',ints,J,'b^-')
+% figure,plot(ints,Ivect,'k.-',ints,Iupvect,'k.--',ints,Ilovect,'k.--',...
+%     ints,Jvect,'b^-',ints,Jupvect,'b^--',ints,Jlovect,'b^--')
+% title([num2str(slices),' slices, ',num2str(mean(partperint)),' particles per interval'])
 timeVec = et:et:Nframes*et;
-iq = interp1(ints,Ivect,timeVec,'spline');
-jq = interp1(ints,Jvect,timeVec,'spline');
-figure,plot(timeVec,iq,'k.-',timeVec,jq,'b^-')
+% iloq = interp1(ints,Ilovect,timeVec,'linear','extrap');
+iq = interp1(ints,Ivect,timeVec,'spline','extrap');
+% iupq = interp1(ints,Iupvect,timeVec,'linear','extrap');
+% jloq = interp1(ints,Jlovect,timeVec,'linear','extrap');
+jq = interp1(ints,Jvect,timeVec,'spline','extrap');
+% jupq = interp1(ints,Jupvect,timeVec,'linear','extrap');
+% figure,plot(timeVec,iq,'k.-',timeVec,iloq,'k--',timeVec,iupq,'k--',...
+%     timeVec,jq,'b^-',timeVec,jloq,'b--',timeVec,jupq,'b--')
+% figure, plot(timeVec,iq,'k.-',timeVec,jq,'b^-')
 
 % Apply correction
 trkID = objsLinked(6,:); numTrajs = max(trkID); 
@@ -89,10 +117,7 @@ figure, h = gca; h.XLim = [1 512]; h.YLim = [1 512]; hold on
 for k = 1:Nframes
     origcenters = orig(orig(:,3) == k,1:2);
     plot(origcenters(:,1),512-origcenters(:,2),'r.')
-%     % radii = repmat(5,length(origcenters),1);
     centers = Ccorrmat(Ccorrmat(:,3) == k,1:2);
     plot(centers(:,1),512-centers(:,2),'b.')
     pause(0.025)
-    % radii = repmat(3,length(centers),1);
-    % viscircles(h,centers,radii,'Color','g');
 end
