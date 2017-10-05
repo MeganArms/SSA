@@ -26,7 +26,7 @@
 % loc_err_corr = mean(semx_corr,'omitnan') + mean(semy_corr,'omitnan');
 
 % 3
-empties = cellfun(@isempty,C); Clong = C(~empties);
+% empties = cellfun(@isempty,C); Clong = C(~empties);
 % Blong = B(~empties);
 % semx = cellfun(@(x)sqrt(sum((x(1,:)-mean(x(1,:))).^2)),Clong)...
 %     ./cellfun(@(x)sqrt(sum(x)),Blong);
@@ -34,7 +34,7 @@ empties = cellfun(@isempty,C); Clong = C(~empties);
 %     ./cellfun(@(x)sqrt(sum(x)),Blong);
 % loc_err = mean(semx,'omitnan') + mean(semy,'omitnan');
 
-empties = cellfun(@isempty,Ccorr); Clongc = Ccorr(~empties); Blong = B(~empties);
+% empties = cellfun(@isempty,Ccorr); Clongc = Ccorr(~empties); Blong = B(~empties);
 % semx = cellfun(@(x)sqrt(sum((x(:,1)-mean(x(:,1))).^2)),Clong)...
 %     ./cellfun(@(x)sqrt(sum(x)),Blong);
 % semy = cellfun(@(x)sqrt(sum((x(:,2)-mean(x(:,2))).^2)),Clong)...
@@ -42,16 +42,36 @@ empties = cellfun(@isempty,Ccorr); Clongc = Ccorr(~empties); Blong = B(~empties)
 % loc_err_corr = mean(semx_corr,'omitnan') + mean(semy_corr,'omitnan');
 
 % 4
-ssex = cell(length(Clong),1); ssey = ssex; ssex_c = ssex; ssey_c = ssey;
-meansx = zeros(length(Clong),1); meansy = meansx; meansxc = meansx; meansyc = meansy;
-for k = 1:length(Clong)
-    currtraj = Clong{k};
-    meansx(k) = mean(currtraj(1,:)); meansy(k) = mean(currtraj(2,:));
-    ssex{k} = (currtraj(1,:)-mean(currtraj(1,:))).^2;
-    ssey{k} = (currtraj(2,:)-mean(currtraj(2,:))).^2;
-    currtraj = Clongc{k};
-    meansxc(k) = mean(currtraj(:,1)); meansyc(k) = mean(currtraj(:,2));
-    ssex_c{k} = (currtraj(:,1)-mean(currtraj(:,1))).^2;
-    ssey_c{k} = (currtraj(:,2)-mean(currtraj(:,2))).^2;
-end
-        
+% ssex = cell(length(Clong),1); ssey = ssex; ssex_c = ssex; ssey_c = ssey;
+% meansx = zeros(length(Clong),1); meansy = meansx; meansxc = meansx; meansyc = meansy;
+% for k = 1:length(Clong)
+%     currtraj = Clong{k};
+%     meansx(k) = mean(currtraj(1,:)); meansy(k) = mean(currtraj(2,:));
+%     ssex{k} = (currtraj(1,:)-mean(currtraj(1,:))).^2;
+%     ssey{k} = (currtraj(2,:)-mean(currtraj(2,:))).^2;
+%     currtraj = Clongc{k};
+%     meansxc(k) = mean(currtraj(:,1)); meansyc(k) = mean(currtraj(:,2));
+%     ssex_c{k} = (currtraj(:,1)-mean(currtraj(:,1))).^2;
+%     ssey_c{k} = (currtraj(:,2)-mean(currtraj(:,2))).^2;
+% end
+      
+% 5
+xstd = std(XC,[],2,'omitnan');
+ystd = std(YC,[],2,'omitnan');
+xstdR = xstd(~isnan(xstd));
+ystdR = ystd(~isnan(ystd));
+Nx = sum(~isnan(bb),2);
+NxR = Nx(Nx>0);
+Ny = sum(~isnan(bb),2);
+NyR = Ny(Ny>0);
+ycstd = std(YCcorr,[],2,'omitnan');
+xcstd = std(XCcorr,[],2,'omitnan');
+xcstdR = xcstd(~isnan(xcstd));
+ycstdR = ycstd(~isnan(ycstd));
+xcsem = sum(xcstdR./sqrt(NxR)/length(xcstdR));
+ycsem = sum(ycstdR./sqrt(NyR)/length(ycstdR));
+xsem = sum(xstdR./sqrt(NxR)/length(xstdR));
+ysem = sum(ystdR./sqrt(NyR)/length(ystdR));
+sem = xsem + ysem;
+semc = xcsem + ycsem;
+

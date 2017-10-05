@@ -42,19 +42,6 @@ for k = 1:slices
         tmp = xcorr2(N(:,:,k-1),N(:,:,k));
         D = tmp(m/2+1:m+m/2,m/2+1:m+m/2);
         % Get location of maximum correlation
-        % Smooth correlation matrix
-%         H = fspecial('average',3);
-%         smoothD = imfilter(D,H,'circular','same');
-%         x = 1:size(smoothD,1);
-%         % Solve for the max as defined by a paraboloid surface
-%         [I(k-1),J(k-1)] = interpCorr(D,m);
-%         % Fit Gaussian to entire image (slow!)
-%         f = imgaussfit(smoothD); 
-%         CI = confint(f);
-%         % Extract coefficients
-%         Ilo(k-1) = CI(1,3); Jlo(k-1) = CI(1,4);
-%         I(k-1) = f.x0; J(k-1) = f.y0;
-%         Iup(k-1) = CI(2,3); Jup(k-1) = CI(2,4);
         % Find first maximum in the image
         corrmax(k-1) = find(D == max(max(D,[],1),[],2),1);
     end
@@ -88,12 +75,13 @@ jq = interp1(ints,Jvect,timeVec,'spline','extrap');
 % Apply correction
 trkID = objsLinked(6,:); numTrajs = max(trkID); 
 trks = cell(numTrajs,1); frms = trks;
-XC = NaN(length(trks),Nframes); YC = XC;
+XC = NaN(length(trks),Nframes); YC = XC; bb = XC;
 for k = 1:numTrajs
     trks{k} = objsLinked(1:2,trkID==k);
     frms{k} = objsLinked(5,trkID==k);
     XC(k,frms{k}) = objsLinked(1,trkID==k);
     YC(k,frms{k}) = objsLinked(2,trkID==k);
+    bb(k,frms{k}) = objsLinked(3,trkID==k);
 end
 XCcorr = XC + iq; YCcorr = YC + jq;
 
