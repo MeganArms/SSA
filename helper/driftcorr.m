@@ -1,17 +1,13 @@
+function [Ccorr, Ccorrmat, O] = driftcorr(slices,Nframes,M,objs_link)
 % Drift Correction 1 - Correlation Matrix Shift
 
 % Use Frame to collect the coordinates of the particles on the frames in
 % the interval of interest, want to minimize the for loops
-ps = 160; % nm, pixel size
-et = 2; % s, exposure time
-slices = 10;
+et = 2; % s, time between frames
 T = floor(Nframes/slices);
 m = 512; n = 512;
 N = zeros(m,m,slices); % Ndil = N;
-% D = zeros(m,m,slices-1);
 corrmax = zeros(slices-1,1);
-I = zeros(slices-1,1); J = zeros(slices-1,1);
-Ilo = I; Iup = I; Jlo = J; Jup = J;
 
 % Keep long trajs only
 K = M(cellfun(@length,M)>T);
@@ -22,7 +18,6 @@ for i = 1:Nframes
     Frame2{i} = find(objsLinked(5,:)==i);
 end
 
-h = waitbar(0,'Analyzing...');
 Xedges = m/n/2:m/n:n+m/n/2; Yedges = Xedges;
 partperint = zeros(slices,1);
 for k = 1:slices
@@ -45,59 +40,58 @@ for k = 1:slices
         % Find first maximum in the image
         corrmax(k-1) = find(D == max(max(D,[],1),[],2),1);
     end
-    waitbar(k/slices);
 end
-close(h); clear h
+% clear tmp D
 
 % Find the difference 
 [I,J] = ind2sub([m m],corrmax);
 dI = I-m/2; dJ = J-m/2;
 Ivect = cumsum(dI); Jvect = cumsum(dJ);
-% Ivect = cumsum(I); Jvect = cumsum(J);
-% Iupvect = (Iup-m/2 - dI) + Ivect; Ilovect = Ivect - (dI - (Ilo-m/2));
-% Jupvect = (Jup-m/2 - dJ) + Jvect; Jlovect = Jvect - (dJ - (Jlo-m/2)); 
 ints = round(linspace(et*T,et*Nframes,slices-1));
-% figure,plot(ints,I,'k.-',ints,J,'b^-')
-% figure,plot(ints,Ivect,'k.-',ints,Iupvect,'k.--',ints,Ilovect,'k.--',...
-%     ints,Jvect,'b^-',ints,Jupvect,'b^--',ints,Jlovect,'b^--')
-% title([num2str(slices),' slices, ',num2str(mean(partperint)),' particles per interval'])
 timeVec = et:et:Nframes*et;
-% iloq = interp1(ints,Ilovect,timeVec,'linear','extrap');
 iq = interp1(ints,Ivect,timeVec,'spline','extrap');
-% iupq = interp1(ints,Iupvect,timeVec,'linear','extrap');
-% jloq = interp1(ints,Jlovect,timeVec,'linear','extrap');
 jq = interp1(ints,Jvect,timeVec,'spline','extrap');
-% jupq = interp1(ints,Jupvect,timeVec,'linear','extrap');
-% figure,plot(timeVec,iq,'k.-',timeVec,iloq,'k--',timeVec,iupq,'k--',...
-%     timeVec,jq,'b^-',timeVec,jloq,'b--',timeVec,jupq,'b--')
-% figure, plot(timeVec,iq,'k.-',timeVec,jq,'b^-')
 
-% Apply correction
-trkID = objsLinked(6,:); numTrajs = max(trkID); 
-trks = cell(numTrajs,1); frms = trks;
-XC = NaN(length(trks),Nframes); YC = XC; bb = XC;
-for k = 1:numTrajs
-    trks{k} = objsLinked(1:2,trkID==k);
-    frms{k} = objsLinked(5,trkID==k);
-    XC(k,frms{k}) = objsLinked(1,trkID==k);
-    YC(k,frms{k}) = objsLinked(2,trkID==k);
-    bb(k,frms{k}) = objsLinked(3,trkID==k);
+
+% Apply correction to all particles
+h = waitbar(0,'Analyzing...');
+trkIDall = objs_link(6,:); numAllTrajs = max(trkIDall);
+trksAll = cell(numAllTrajs,1); frmsAll = trksAll;
+Xall = NaN(numAllTrajs,Nframes); Yall = Xall; bbAll = Xall;
+ 
+for k = 1:numAllTrajs
+    trksAll{k} = objs_link(1:2,trkIDall==k);
+    frmsAll{k} = objs_link(5,trkIDall==k);
+    Xall(k,frmsAll{k}) = objs_link(1,trkIDall==k);
+    Yall(k,frmsAll{k}) = objs_link(2,trkIDall==k);
+    bbAll(k,frmsAll{k}) = objs_link(3,trkIDall==k); 
+    waitbar(k/numAllTrajs);
 end
-XCcorr = XC + iq; YCcorr = YC + jq;
+close(h); clear h
+XCall = Xall + iq; YCall = Yall + jq;
+XCall(XCall<=0) = -1; XCall(XCall>m) = -1;
+YCall(YCall<=0) = -1; YCall(YCall>n) = -1;
 
-% Convert into individual trajectory cell form
-Ccorr = cell(size(trks));
+Ccorr = cell(size(trksAll)); O = Ccorr;
 for k = 1:length(Ccorr)
-    xs = XCcorr(k,:); ys = YCcorr(k,:);
-    xs(isnan(xs))=[];ys(isnan(ys)) = [];
+    xs = XCall(k,:); ys = YCall(k,:);
+    removedx = xs==-1; removedy = ys==-1;
+    todeletex = isnan(xs)|removedx;
+    todeletey = isnan(ys)|removedy;
+    xs(todeletex|todeletey)=[];ys(todeletex|todeletey) = [];
     if ~isempty(xs)
-        frames = frms{k};
+        frames = frmsAll{k}; 
+        remFrames = ismember(frames,find(removedx|removedy));
+        molecNum = M{k}; 
+        molecNum(remFrames) = [];
+        frames(remFrames) = [];
+        O{k} = molecNum;
         Ccorr{k} = [xs',ys',frames'];
     end
 end
 Ccorrmat = cell2mat(Ccorr);
-trksmat = cell2mat(cellfun(@(x) x',trks,'UniformOutput',0));
-frmsmat = cell2mat(cellfun(@(x) x',frms,'UniformOutput',0));
+trksmat = cell2mat(cellfun(@(x) x',trksAll,'UniformOutput',0));
+frmsmat = cell2mat(cellfun(@(x) x',frmsAll,'UniformOutput',0));
 orig = [trksmat,frmsmat];
 
 % Display corrected points
@@ -109,3 +103,6 @@ for k = 1:Nframes
     plot(centers(:,1),512-centers(:,2),'b.')
     pause(0.025)
 end
+% figure, h = gca; h.XLim = [1 512]; h.YLim = [1 512]; hold on
+% plot(objs_link(1,:),512-objs_link(2,:),'r.')
+% plot(XCall,512-YCall,'b.'), hold on

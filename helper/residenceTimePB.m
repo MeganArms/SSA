@@ -1,4 +1,4 @@
-function [f,x,SF,count,sem,CC,b,xx,nume] = residenceTime(traj,frames,Nframes,exposure)
+function [f,x,SF,count,sem,CC,b,xx,nume] = residenceTimePB(traj,frames,Nframes,exposure)
 % RESIDENCETIMESTAT calculates the distribution of residence time.
 %
 % INPUT:
@@ -7,7 +7,7 @@ function [f,x,SF,count,sem,CC,b,xx,nume] = residenceTime(traj,frames,Nframes,exp
 % OUTPUT:
 %   - COUNT - number of trajectories corresponding to specific residence
 %   time.
-toexclude = cellfun(@(x)x(1)==1||x(end)==Nframes,frames);
+toexclude = cellfun(@(x)x(end)==Nframes,frames);
 newtraj = traj(~toexclude);
 lengths = cellfun(@length,newtraj);
 reside = lengths(lengths>1);
@@ -32,10 +32,7 @@ xx = T(ind);
 sem = sem(ind);
 
 % Compare to KM
-toexclude = cellfun(@(x)x(1)==1,frames);
-f = frames(~toexclude);
-newtraj = traj(~toexclude);
-lengths = cellfun(@length,newtraj);
+lengths = cellfun(@length,traj);
 reside = lengths(lengths>1);
-cens = cellfun(@(x)x(end)==Nframes,f);
+cens = cellfun(@(x)x(end)==Nframes,frames);
 [f,x] = ecdf(reside*exposure,'function','survivor','censoring',cens);

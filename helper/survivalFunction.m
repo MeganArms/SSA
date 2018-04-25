@@ -19,7 +19,7 @@ deltaT = exptime;
 % count = count(1:end-1)';
 T = deltaT:deltaT:maxT;
 
-c = 1./(heaviside(maxT-[0,T]).*(1-([0,T]/maxT)));
+c = 1./((heaviside(maxT-[0,T]).*(1-([0,T]/maxT)))).^2;
 % c = [1,ones(1,length(T))];
 c = c(1:end-1);
 if length(c) ~= length(count)
