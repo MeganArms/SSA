@@ -1,4 +1,10 @@
-function [spotEvents3, eventfreq] = eventlinks9(tol,Ccorr,O,B)
+function [spotEvents3, eventfreq] = eventlinks9(tol,Ccorr,O,B,varargin)
+
+%% Find locations of interest
+if ~isempty(varargin)
+    F = varargin{1};
+    Ccorr = cellfun(@(x)x',Ccorr,'UniformOutput',false);
+end
 
 longCoords = Ccorr; clengths = zeros(length(Ccorr),1);
 objnum = O;
@@ -41,6 +47,7 @@ l = 1;
 for k = 1:length(combineIdx)
     objnums = [objnum{combineIdx{k}}];
     brightness = [B{combineIdx{k}}];
+    frms = [F{combineIdx{k}}];
     if ~isempty(objnums)
         tocmbn = cat(1,longCoords{combineIdx{k}});
         
@@ -56,7 +63,8 @@ for k = 1:length(combineIdx)
         brightness = brightness(bb);
         
         % Make new connections
-        frames = round(tocmbn(:,3));
+%         frames = round(tocmbn(:,3));
+        frames = frms(bb);
         tmptraj = NaN(1,max(frames)-min(frames)+1);
         [frmsrtd,srtind] = sort(frames,'ascend');
         indnum = frmsrtd-min(frmsrtd)+1;
