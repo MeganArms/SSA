@@ -38,11 +38,13 @@ for k = 1:length(spotEvents1)
     
     if firstframe(k) ~= 1 && lastframe(k) ~= Nframes && n > 0
         % If the bright events do not overlap the start or end of the movie
+        % The dark events cannot be at the start or end of a trajectory.
 %         btime(l:l+length(bCC.PixelIdxList)-1) = cellfun(@length,bCC.PixelIdxList);
         lengths = cellfun(@length,dCC.PixelIdxList);
-        dtime(p:p+length(lengths)-3) = lengths(2:end-1);
+        lengths = lengths(lengths>1);
+        dtime(p:p+length(lengths)-1) = lengths;
 %         l = l + length(bCC.PixelIdxList);
-        p = p + length(lengths) - 2;
+        p = p + length(lengths);
         
         for q = 1:length(icounts_hold)
             % Total integrated counts of the bright event. Error will be sqrt.
@@ -140,9 +142,10 @@ for k = 1:length(spotEvents2)
         % If the bright events do not overlap the start or end of the movie
 %         btime(l:l+length(bCC.PixelIdxList)-1) = cellfun(@length,bCC.PixelIdxList);
         lengths = cellfun(@length,dCC.PixelIdxList);
-        dtime(p:p+length(lengths)-3) = lengths(2:end-1);
+        lengths = lengths(lengths>1);
+        dtime(p:p+length(lengths)-1) = lengths;
 %         l = l + length(bCC.PixelIdxList);
-        p = p + length(lengths) - 2;
+        p = p + length(lengths);
         
         for q = 1:length(icounts_hold)
             % Total integrated counts of the bright event. Error will be sqrt.
