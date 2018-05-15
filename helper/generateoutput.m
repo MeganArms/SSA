@@ -30,11 +30,11 @@ end
 
 % objs_link1 = objs_link;
 % clear objs_link objs
-[C1,B1,F1,M1,S1,R1,Frame1] = collate(objs_link1);
-[spotEvents1, objtrajinf, eventfreq1, stuckfreq, empties] = eventlinks2(C1,R1,objs_link1);
+% [C1,B1,F1,M1,S1,R1,Frame1] = collate(objs_link1);
+% [spotEvents1, eventfreq1] = eventlinks9(2,C1,M1,B1,F1);
 % 
 % objs_link2 = objs_link;
 % clear objs objs_link
-[C2,B2,F2,M2,S2,R2,Frame2] = collate(objs_link2);
-[spotEvents2, objtrajinf, eventfreq2, stuckfreq, empties] = eventlinks2(C2,R2,objs_link2);
+% [C2,B2,F2,M2,S2,R2,Frame2] = collate(objs_link2);
+% [spotEvents2, eventfreq2] = eventlinks9(2,C2,M2,B2,F2);
 end

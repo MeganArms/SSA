@@ -2,6 +2,7 @@ function driftobj = analysis_rpstyle(img)
 
 threshopt = 1; thresh = 0.999; nsize = 7; try1pernhood = false; dimg = [];
 [y, x] = calcthreshpts(img, threshopt, thresh, nsize, try1pernhood, dimg);
+orientationstr = 'momentcalc';
 
 % Get rid of maxima too close to the edge
 lenx = 2*floor(nsize/2) + 1;  % 'floor' isn't really necessary, but this
@@ -89,6 +90,27 @@ end
 xn = xcent + rect(:,1)' - 1; % -1 is to correct for matlab indexing
 yn = ycent + rect(:,2)' - 1;
 
+%% If desired, calculate the ellipsoid orientation
+if ~isempty(orientationstr)
+    theta = zeros(1,length(x));
+    ra = zeros(1,length(x));
+    rb = zeros(1,length(x));
+    switch lower(orientationstr)
+        % Note that 'none' has already been turned into an empty
+        % orientation string
+        case {'momentcalc'}
+            % simple moment calculation
+            % Redundant grid calculations, etc., that could be sped up...
+            for j = 1:length(x)
+                [~, theta(j), r] = simpleellipsefit(cropimg(:,:,j), [xcent(j) ycent(j)], false, true);
+                ra(j) = r(1);
+                rb(j) = r(2);
+            end
+        otherwise
+            errordlg('Unknown orientation method! [fo5_rp.m]');
+    end
+end
+
 %% Create objs matrix
 nrows = 8;
 driftobj = zeros(nrows, length(xn));
@@ -98,3 +120,6 @@ driftobj(3,:) = savemass;
 driftobj(4,:) = 1:length(x);
 driftobj(7,:) = sigma;
 driftobj(8,:) = meand2;  % zero for all methods other than 'radial'
+driftobj(9,:) = theta;
+driftobj(10,:) = ra;
+driftobj(11,:) = rb;

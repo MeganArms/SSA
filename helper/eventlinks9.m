@@ -4,6 +4,8 @@ function [spotEvents3, eventfreq] = eventlinks9(tol,Ccorr,O,B,varargin)
 if ~isempty(varargin)
     F = varargin{1};
     Ccorr = cellfun(@(x)x',Ccorr,'UniformOutput',false);
+else
+    F = cellfun(@(x)x(:,3),Ccorr,'UniformOutput',false);
 end
 
 longCoords = Ccorr; clengths = zeros(length(Ccorr),1);

@@ -1,5 +1,5 @@
-function spotEvents = connectEvents_rp(Result,C,F,th)
-
+function spotEvents = connectEvents_rp(Result,C,F,dTh)
+% DO NOT USE. THIS WILL GIVE BAD & INCORRECT RESULTS
 % Result = obj.Result;
 % C - x is in row 1, y is in row 2
 
@@ -53,7 +53,7 @@ else
         % for this is how much greater the current index is than the size of
         % the last index that was input into the close trajectories
         % if EucDistMatrix(i) <= sqrt(dTh) && abs(i - prev_i) == tTh
-        if EucDistMatrix(i) <= sqrt(th)
+        if EucDistMatrix(i) <= sqrt(dTh)
             if k == 1 % Then this is the first entry in the cell. Advance j by one to create a new cell.
                 j = j + 1;
                 closeTrajs{1,j}(1,k) = sortedTrajIndices(i-1); %index
@@ -67,7 +67,7 @@ else
                 % as well, otherwise just continue to the next coordinate
                 [~,N] = size(closeTrajs{1,j});
                 for f = N:-1:1
-                    if pdist([sortedFirstMolecs(i,:); (closeTrajs{1,j}(2:3,f))']) > sqrt(2)
+                    if pdist([sortedFirstMolecs(i,:); (closeTrajs{1,j}(2:3,f))']) > sqrt(dTh)
                         store = 0;
                         break % if ANY are not close enough, do not store this molecule, go to next trajectory index
                     else
@@ -82,7 +82,7 @@ else
                 end
             end
             % prev_i = i;
-        elseif EucDistMatrix(i) > sqrt(th) % Create a new cell if the current index is too far from the prev
+        elseif EucDistMatrix(i) > sqrt(dTh) % Create a new cell if the current index is too far from the prev
         % elseif EucDistMatrix(i) <= sqrt(2) && abs(i - prev_i) > 1 % Create a new cell if the current index is too far from the prev
             k = 1; % Reset k for each cell, since the part of the if-statement will be repeated many times
             j = j+1;
