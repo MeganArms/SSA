@@ -1,7 +1,7 @@
 function [survFuncs,intensities,numbers] = generateoutput(et,Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,objs_link2,eventfreq1,eventfreq2,varargin)
 
 [sfc,tc,semc,bc,numec,~,~] = crtd2(spotEvents1,spotEvents2,Nframes,et,objs_link1,objs_link2);
-[icounts,dtime,firstframe,lastframe,~,avgb,rangeb,maxb,rcdfb] = factors(spotEvents1,spotEvents2,Nframes,objs_link1,objs_link2);
+[icounts,dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb] = factors(spotEvents1,spotEvents2,Nframes,objs_link1,objs_link2);
 [f,x,~,~,~,CC,b,xx,nume] = residenceTime([C1;C2],[F1;F2],Nframes,et);
 [fc,xc,reside,cens] = km2(spotEvents1,spotEvents2,Nframes,et,objs_link1,objs_link2);
 num1 = sum(firstframe == 1); 
@@ -15,7 +15,7 @@ xc(1) = 0; x(1) = 0;
 
 if isempty(varargin)
     survFuncs = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x};
-    intensities = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb};
+    intensities = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb,brightness};
     numbers = {firstframe,lastframe,num1,fffract,numlast,lffract,numtrajc,numtraj,numobj,[eventfreq1;eventfreq2],Nframes};
 else
     survFuncs = varargin{1};
@@ -24,7 +24,7 @@ else
     numbers = varargin{3};
     
     survFuncs(newIndex,:) = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x};
-    intensities(newIndex,:) = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb};
+    intensities(newIndex,:) = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb,brightness};
     numbers(newIndex,:) = {firstframe,lastframe,num1,fffract,numlast,lffract,numtrajc,numtraj,numobj,[eventfreq1;eventfreq2],Nframes};
 end
 

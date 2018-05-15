@@ -17,11 +17,15 @@ brightness = cell(length(spotEvents1),1);
 bmat = NaN(length(spotEvents1),Nframes);
 for k = 1:length(spotEvents1)
     traj = spotEvents1(k).trajectory;
+    if eventfreq1(k) > 1
+        continue
+    else
     inds = find(~isnan(traj));
     frames = objs_link1(5,traj(inds));
     int_counts = objs_link1(3,traj(inds));
     bmat(k,frames) = int_counts;
-    brightness{k} = cumsum(bmat(k,:),'reverse','omitnan');
+%     brightness{k} = cumsum(bmat(k,:),'reverse','omitnan');
+    brightness{k} = bmat(k,:);
     maxb = max([maxb,max(int_counts)]);
     avgb(k) = mean(int_counts);
     rangeb(k) = range(int_counts);
@@ -111,6 +115,8 @@ for k = 1:length(spotEvents1)
 %         end
 %     else
 %         disp('something is wrong')
+    
+    end
     end
 end
 

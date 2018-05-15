@@ -24,7 +24,7 @@ else
     numbers = varargin{3};
     
     survFuncs(newIndex,:) = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x};
-    intensities(newIndex,:) = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb};
+    intensities(newIndex,:) = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),dtime,avgb,rangeb,maxb,rcdfb,brightness};
     numbers(newIndex,:) = {firstframe,lastframe,num1,fffract,numlast,lffract,numtrajc,numtraj,numobj,eventfreq1,Nframes};
 end
 
