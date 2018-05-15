@@ -99,8 +99,7 @@ load('/Path/Filename.mat')
 ### Aggregate output for further analysis of two videos per condition
 - Replace `LAG` with the time between frames, and `MMDD ExperimentalConditionX` with the date and experimental condition and run
 ```
-[survFuncs,intensities,numbers] = generateoutput(LAG,...Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,...
-objs_link2,eventfreq1,eventfreq2);
+[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,objs_link2,eventfreq1,eventfreq2);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
 ```
@@ -108,8 +107,7 @@ clear
 - If there are multiple experimental conditions to be compared, repeat the data clean up step and run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-[survFuncs,intensities,numbers] = generateoutput(LAG,...Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,...
-objs_link2,eventfreq1,eventfreq2,survFuncs,intensities,numbers);
+[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,objs_link2,eventfreq1,eventfreq2,survFuncs,intensities,numbers);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
 ```
@@ -117,7 +115,7 @@ clear
 ### Aggregate output for further analysis of photobleaching experiments
 - Replace `LAG` with the time between frames, and `MMDD ExperimentalConditionX` with the date and experimental condition and run
 ```
-[survFuncs,intensities,numbers] = generateoutputPB(LAG,...Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1);
+[survFuncs,intensities,numbers] = generateoutputPB(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
 ```
@@ -125,7 +123,7 @@ clear
 - If there are multiple experimental conditions to be compared, repeat the data clean up step and run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-[survFuncs,intensities,numbers] = generateoutput(LAG,...Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1,...)
+[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1,)
 survFuncs,intensities,numbers);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
