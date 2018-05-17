@@ -88,10 +88,10 @@ clear
 ```
 - If there are two videos for the same condition, load the second file and run
 ```
-objs_link1 = objs_link;
+objs_link2 = objs_link;
 clear objs_link objs
-[C1,B1,F1,M1,S1,R1,Frame1] = collate(objs_link1);
-[spotEvents1, eventfreq1] = eventlinks9(2,C1,M1,B1,F1);
+[C2,B2,F2,M2,S2,R2,Frame2] = collate(objs_link2);
+[spotEvents2, eventfreq2] = eventlinks9(2,C2,M2,B2,F2);
 save('/Path/Filename2.mat')
 load('/Path/Filename.mat')
 ```
