@@ -11,7 +11,7 @@ doi:10.1038/nmeth.2071). ADD BG ON WHY AND WHY THE SF ISSUE
 
 Input: output from the RP analysis program.
 
-Required: MATLAB R2018a and RP analysis program, available [here](https://www.nature.com/articles/nmeth.2071#supplementary-information).
+Required: MATLAB R2018a and RP analysis program/GUI, available [here](http://pages.uoregon.edu/raghu/particle_tracking.html).
 
 Output: Individual video files with variables **C**, **B**, **F**, **M**, **S**, **R**, **Frame**, **spotEvents**, **eventfreq**. Cell arrays with aggregated data otuput **survFuncs**, **intensities**, **numbers**
 
