@@ -129,6 +129,15 @@ save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers
 clear
 ```
 
+### Photobleaching analysis
+- Find the exponential decay of the photobleaching residence time curve and run `sfcorr.m` to remove the photobleaching effect.
+```
+mu = expfit(survFuncsPB{1,8},0.05,survFuncsPB{1,9});
+sc = sfcorr(survFuncs{1,7},survFuncs{1,6},mu);
+s = sfcorr(survFuncs{15},survFuncs{14},mu);
+```
+
+
 ## Potential output
 
 ### Survival function of connected trajectories
