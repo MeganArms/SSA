@@ -115,18 +115,17 @@ clear
 ### Aggregate output for further analysis of photobleaching experiments
 - Replace `LAG` with the time between frames, and `MMDD ExperimentalConditionX` with the date and experimental condition and run
 ```
-[survFuncs,intensities,numbers] = generateoutputPB(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1);
-save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
+[survFuncsPB,intensitiesPB,numbersPB] = generateoutputPB(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1);
+save('MMDD ExperimentalConditionX output.mat','survFuncsPB','intensitiesPB','numbersPB')
 clear
 ```
 
 - If there are multiple experimental conditions to be compared, repeat the data clean up step and run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1,)
-survFuncs,intensities,numbers);
-save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
-clear
+[survFuncsPB,intensitiesPB,numbersPB] = generateoutput(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1,)
+survFuncsPB,intensitiesPB,numbersPB);
+save('MMDD ExperimentalConditionX output.mat','survFuncsPB','intensitiesPB','numbersPB')
 ```
 
 ### Photobleaching analysis
