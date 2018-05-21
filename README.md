@@ -132,8 +132,11 @@ save('MMDD ExperimentalConditionX output.mat','survFuncsPB','intensitiesPB','num
 - Find the exponential decay of the photobleaching residence time curve and run `sfcorr.m` to remove the photobleaching effect.
 ```
 mu = expfit(survFuncsPB{1,8},0.05,survFuncsPB{1,9});
-sc = sfcorr(survFuncs{1,7},survFuncs{1,6},mu);
-s = sfcorr(survFuncs{15},survFuncs{14},mu);
+sc = cell(size(survFuncs,1),1); s = sc;
+for k = 1:size(survFuncs,1)
+	sc{k} = sfcorr(survFuncs{k,7},survFuncs{k,6},mu);
+	s{k} = sfcorr(survFuncs{k,15},survFuncs{k,14},mu);
+end
 ```
 
 
@@ -143,7 +146,7 @@ s = sfcorr(survFuncs{15},survFuncs{14},mu);
 - Run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-plotallcurves(survFuncs(:,7),survFuncs(:,6))
+plotallcurves(survFuncs(:,7),sc(:))
 ```
 
 
