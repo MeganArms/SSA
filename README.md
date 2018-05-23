@@ -27,44 +27,43 @@ Definitions:
 - **spotEvents**: structure with one field where each row containing the particle identification number after the trajectories have been connected across dark frames.
 - **eventfreq**: Nx1 double with each row containing the number of events that occur on a single location of interest. N is the same length as `spotEvents`.
 - **survFuncs**: cell arrray with each row containing collected information on survival functions from a video or set of two videos. Each column contains:
-	* survival function connected across dark frames, using the Kastantin-Schwartz correction method.
-	* time points for the above survival function
-	* standard error of the mean at each time point.
-	* sum of the correction factors for the above survival function
-	* numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
-	* survival function connected across dark frames, using the Kaplan-Meier correction method.
-	* time points for the above survival function
-	* double array of residence times used to generate the survival function
-	* logical array indicating if the residence time was censored (1) or not (0)
-	* survival function using the Kastantin-Schwartz correction method.
-	* time points for the above survival function
-	* standard error of the mean at each time point.
-	* sum of the correction factors for the above survival function
-	* numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
-	* survival function using the Kaplan-Meier correction method.
-	* time points for the above survival function
+	* 1) survival function connected across dark frames, using the Kastantin-Schwartz correction method.
+	* 2) time points for the above survival function
+	* 3) standard error of the mean at each time point.
+	* 4) sum of the correction factors for the above survival function
+	* 5) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
+	* 6) survival function connected across dark frames, using the Kaplan-Meier correction method.
+	* 7) time points for the above survival function
+	* 8) double array of residence times used to generate the survival function
+	* 9) logical array indicating if the residence time was censored (1) or not (0)
+	* 10) survival function using the Kastantin-Schwartz correction method.
+	* 11) time points for the above survival function
+	* 12) sum of the correction factors for the above survival function
+	* 13) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
+	* 14) survival function using the Kaplan-Meier correction method.
+	* 15) time points for the above survival function
 - **intensities**: cell arrray with each row containing collected information on intensities from a video or set of two videos. Each column contains:
-	* double array of the total integrated counts of each, unconnected trajectory
-	* double array of the number of frames upon which each unconnected trajectory appears
-	* double array of the number of bright events per trajectory, repeated for number of bright events in each connected trajectory.
-	* double array of the number of frames upon which each connected trajectory appears, repeated for the number of bright events in every trajectory.
-	* double array with the length of all of the dark events in every connected trajectory.
-	* double array with the average brightness of each connected trajectory
-	* double array with the range of brightnesses of each connected trajectory
-	* double array with the maximum brightness of each connected trajectory
-	* double array reverse cumulative sum of the average brightness on each frame over all trajectorie.
+	* 1) double array of the total integrated counts of each, unconnected trajectory
+	* 2) double array of the number of frames upon which each unconnected trajectory appears
+	* 3) double array of the number of bright events per trajectory, repeated for number of bright events in each connected trajectory.
+	* 4) double array of the number of frames upon which each connected trajectory appears, repeated for the number of bright events in every trajectory.
+	* 5) double array with the length of all of the dark events in every connected trajectory.
+	* 6) double array with the average brightness of each connected trajectory
+	* 7) double array with the range of brightnesses of each connected trajectory
+	* 8) double array with the maximum brightness of each connected trajectory
+	* 9) double array reverse cumulative sum of the average brightness on each frame over all trajectorie.
 - **numbers**: cell arrray with each row containing collected information on particle counts from a video or set of two videos. Each column contains:
-	* double array with the first frame number for each conencted trajectory
-	* double array with the last frame number for each connected trajectory
-	* double with the number of trajectories appearing on the first frame
-	* double with the fraction of trajectories appearing on the first frame
-	* double with the number of trajectories appearing on the last frame
-	* double with the fraction of trajectories appearing on the last frame
-	* double with the number of connected trajectories
-	* double with the number of trjaecoties
-	* double with the number of objects detected
-	* Nx1 double with each row containing the number of events that occur on a single location of interest. N is the same length as `spotEvents`, or the sum of the length of `spotEvents` from two videos.
-	* 1x1 double with the number of frames in the video.
+	* 1) double array with the first frame number for each conencted trajectory
+	* 2) double array with the last frame number for each connected trajectory
+	* 3) double with the number of trajectories appearing on the first frame
+	* 4) double with the fraction of trajectories appearing on the first frame
+	* 5) double with the number of trajectories appearing on the last frame
+	* 6) double with the fraction of trajectories appearing on the last frame
+	* 7) double with the number of connected trajectories
+	* 8) double with the number of trjaecoties
+	* 9) double with the number of objects detected
+	* 10) Nx1 double with each row containing the number of events that occur on a single location of interest. N is the same length as `spotEvents`, or the sum of the length of `spotEvents` from two videos.
+	* 11) 1x1 double with the number of frames in the video.
 
 ## Quick Start Guide to SSA
 
