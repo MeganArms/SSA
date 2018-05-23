@@ -27,21 +27,21 @@ Definitions:
 - **spotEvents**: structure with one field where each row containing the particle identification number after the trajectories have been connected across dark frames.
 - **eventfreq**: Nx1 double with each row containing the number of events that occur on a single location of interest. N is the same length as `spotEvents`.
 - **survFuncs**: cell arrray with each row containing collected information on survival functions from a video or set of two videos. Each column contains:
-	* 1) survival function connected across dark frames, using the Kastantin-Schwartz correction method.
-	* 2) time points for the above survival function
-	* 3) standard error of the mean at each time point.
-	* 4) sum of the correction factors for the above survival function
-	* 5) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
-	* 6) survival function connected across dark frames, using the Kaplan-Meier correction method.
-	* 7) time points for the above survival function
-	* 8) double array of residence times used to generate the survival function
-	* 9) logical array indicating if the residence time was censored (1) or not (0)
-	* 10) survival function using the Kastantin-Schwartz correction method.
-	* 11) time points for the above survival function
-	* 12) sum of the correction factors for the above survival function
-	* 13) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
-	* 14) survival function using the Kaplan-Meier correction method.
-	* 15) time points for the above survival function
+	1) survival function connected across dark frames, using the Kastantin-Schwartz correction method.
+	2) time points for the above survival function
+	3) standard error of the mean at each time point.
+	4) sum of the correction factors for the above survival function
+	5) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
+	6) survival function connected across dark frames, using the Kaplan-Meier correction method.
+	7) time points for the above survival function
+	8) double array of residence times used to generate the survival function
+	9) logical array indicating if the residence time was censored (1) or not (0)
+	10) survival function using the Kastantin-Schwartz correction method.
+	11) time points for the above survival function
+	12) sum of the correction factors for the above survival function
+	13) numerator at each point for the above survival function, i.e. the corrected counts for each time point in the survival function.
+	14) survival function using the Kaplan-Meier correction method.
+	15) time points for the above survival function
 - **intensities**: cell arrray with each row containing collected information on intensities from a video or set of two videos. Each column contains:
 	* 1) double array of the total integrated counts of each, unconnected trajectory
 	* 2) double array of the number of frames upon which each unconnected trajectory appears
