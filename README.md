@@ -81,24 +81,24 @@ load('/Path/Filename.mat')
 objs_link1 = objs_link;
 clear objs_link objs
 [C1,B1,F1,M1,S1,R1,Frame1] = collate(objs_link1);
-[spotEvents1, eventfreq1] = eventlinks9(2,C1,M1,B1,F1);
+[spotEvents1, eventfreq1] = eventlinks9(2,5,LAG,C1,M1,B1,F1);
 save('/Path/Filename.mat')
 clear
 ```
-- If there are two videos for the same condition, load the second file and run
+- If there are multiple videos for the same condition, load the second file and run
 ```
 objs_link2 = objs_link;
 clear objs_link objs
 [C2,B2,F2,M2,S2,R2,Frame2] = collate(objs_link2);
-[spotEvents2, eventfreq2] = eventlinks9(2,C2,M2,B2,F2);
+[spotEvents2, eventfreq2] = eventlinks9(2,5,LAG,C2,M2,B2,F2);
 save('/Path/Filename2.mat')
 load('/Path/Filename.mat')
 ```
 
-### Aggregate output for further analysis of two videos per condition
+### Aggregate output for further analysis of two or more videos per condition
 - Replace `LAG` with the time between frames, and `MMDD ExperimentalConditionX` with the date and experimental condition and run
 ```
-[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,objs_link2,eventfreq1,eventfreq2);
+[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,false,C1,F1,objs_link1,spotEvents1,eventfreq1,C2,F2,spotEvents2,objs_link2,eventfreq2);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
 ```
@@ -106,7 +106,7 @@ clear
 - If there are multiple experimental conditions to be compared, repeat the data clean up step and run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,C1,C2,F1,F2,spotEvents1,spotEvents2,objs_link1,objs_link2,eventfreq1,eventfreq2,survFuncs,intensities,numbers);
+[survFuncs,intensities,numbers] = generateoutput(LAG,Nframes,false,C1,F1,objs_link1,spotEvents1,eventfreq1,C2,F2,spotEvents2,objs_link2,eventfreq2,survFuncs,intensities,numbers);
 save('MMDD ExperimentalConditionX output.mat','survFuncs','intensities','numbers')
 clear
 ```
@@ -114,7 +114,7 @@ clear
 ### Aggregate output for further analysis of photobleaching experiments
 - Replace `LAG` with the time between frames, and `MMDD ExperimentalConditionX` with the date and experimental condition and run
 ```
-[survFuncsPB,intensitiesPB,numbersPB] = generateoutputPB(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1);
+[survFuncsPB,intensitiesPB,numbersPB] = generateoutput(LAG,Nframes,true,C1,F1,objs_link1,spotEvents1,eventfreq1);
 save('MMDD ExperimentalConditionX output.mat','survFuncsPB','intensitiesPB','numbersPB')
 clear
 ```
@@ -122,7 +122,7 @@ clear
 - If there are multiple experimental conditions to be compared, repeat the data clean up step and run
 ```
 load('MMDD ExperimentalConditionX output.mat')
-[survFuncsPB,intensitiesPB,numbersPB] = generateoutput(LAG,Nframes,C1,F1,spotEvents1,objs_link1,eventfreq1,)
+[survFuncsPB,intensitiesPB,numbersPB] = generateoutput(LAG,Nframes,true,C1,F1,objs_link1,spotEvents1,eventfreq1,
 survFuncsPB,intensitiesPB,numbersPB);
 save('MMDD ExperimentalConditionX output.mat','survFuncsPB','intensitiesPB','numbersPB')
 ```
