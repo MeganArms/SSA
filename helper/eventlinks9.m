@@ -1,4 +1,4 @@
-function [spotEvents3, eventfreq] = eventlinks9(tol,Ccorr,O,B,varargin)
+function [spotEvents3, eventfreq] = eventlinks9(tol,ttol,et,Ccorr,O,B,varargin)
 
 %% Find locations of interest
 if ~isempty(varargin)
@@ -43,6 +43,7 @@ for k = 1:length(seedCoords)
 end
 
 %% Create new, connected trajectories
+ftol = ttol/et;
 spotEvents = struct; 
 eventfreq = zeros(length(combineIdx),1);
 l = 1;
@@ -64,23 +65,34 @@ for k = 1:length(combineIdx)
         tocmbn = tocmbn(bb,:);
         brightness = brightness(bb);
         
-        % Make new connections
+        % Make new connections if they are within the time allowed for
+        % connection (time tolerance, ttol, converted to frame tolerance
+        % above)
 %         frames = round(tocmbn(:,3));
-        frames = frms(bb);
-        tmptraj = NaN(1,max(frames)-min(frames)+1);
-        [frmsrtd,srtind] = sort(frames,'ascend');
-        indnum = frmsrtd-min(frmsrtd)+1;
-        tmptraj(indnum) = objnums(srtind);
-        spotEvents(l).trajectory = tmptraj;
-        spotEvents(l).coordinates = tocmbn(srtind,1:2);
-        spotEvents(l).brightness = brightness(srtind);
-        spotEvents(l).frames = frmsrtd;
-        CC = bwconncomp(isnan(tmptraj));
-        lengths = cellfun(@length,CC.PixelIdxList);
-        eventfreq(l) = sum(lengths>1)+1; % Dark time must be greater than one frame
-        spotEvents(l).eventfreq = eventfreq(l);
-        spotEvents(l).std = sqrt(sum(std(tocmbn(:,1:2)).^2));
-        l = l + 1;
+        storedtraj = frms(bb);
+        while ~isempty(storedtraj)
+            frames = storedtraj;
+            dur = diff(frames);
+            storedtraj(1:find(dur > ftol,1)) = [];
+            frames(find(dur > ftol,1)+1:end) = [];
+            tmptraj = NaN(1,max(frames)-min(frames)+1);
+            [frmsrtd,srtind] = sort(frames,'ascend');
+            indnum = frmsrtd-min(frmsrtd)+1;
+            tmptraj(indnum) = objnums(srtind);
+            spotEvents(l).trajectory = tmptraj;
+            spotEvents(l).coordinates = tocmbn(srtind,1:2);
+            spotEvents(l).brightness = brightness(srtind);
+            spotEvents(l).frames = frmsrtd;
+            CC = bwconncomp(isnan(tmptraj));
+            lengths = cellfun(@length,CC.PixelIdxList);
+            eventfreq(l) = sum(lengths>1)+1; % Dark time must be greater than one frame
+            spotEvents(l).eventfreq = eventfreq(l);
+            spotEvents(l).std = sqrt(sum(std(tocmbn(:,1:2)).^2));
+            l = l + 1;
+            if sum(dur > ftol) == 0
+                storedtraj = [];
+            end
+        end
     end
 end
 eventfreq(eventfreq==0) = [];
