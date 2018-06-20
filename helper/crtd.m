@@ -1,19 +1,40 @@
-function [sf,t,sem,b,nume] = crtd(spotEvents,Nframes,exptime,objs_link)
+function [sf,t,sem,b,nume,firstframe,lastframe] = crtd(Nframes,exptime,PBflag,spots,objs)
 
-l = 1;
-reside = zeros(length(spotEvents),1);
-for k = 1:length(spotEvents)
-    traj = spotEvents(k).trajectory;
-    inds = find(~isnan(traj));
-    firstframe = objs_link(5,traj(min(inds)));
-    lastframe = objs_link(5,traj(max(inds)));
-    n = lastframe - firstframe;
-    if firstframe ~= 1 && lastframe ~= Nframes && n > 0
-        reside(l) = (n+1)*exptime;
-        l = l + 1;
+% PB flag is true for photobleaching analysis, false otherwise
+        
+l = 1; r = 1;
+L = cellfun(@length,spots);
+reside = zeros(sum(L),1);
+firstframe = reside; lastframe = reside;
+for q = 1:length(spots)
+    spotEvents = spots{q};
+    objs_link = objs{q};
+    if q == 1
+        idx = r:length(spotEvents);
+        r = r + length(spotEvents);
+    else
+        idx = r:(length(spotEvents)+r-1);
+        r = r + length(spotEvents);
+    end
+    for k = 1:length(spotEvents)
+        traj = spotEvents(k).trajectory;
+        inds = find(~isnan(traj));
+        t = idx(k);
+        firstframe(t) = objs_link(5,traj(min(inds)));
+        lastframe(t) = objs_link(5,traj(max(inds)));
+        n = lastframe(t) - firstframe(t);
+        if PBflag && firstframe(t) == 1 && lastframe(t) ~= Nframes && n > 0
+            reside(l) = (n+1)*exptime;
+            l = l + 1;
+        elseif ~PBflag && firstframe(t) ~= 1 && lastframe(t) ~= Nframes && n > 0
+            reside(l) = (n+1)*exptime;
+            l = l + 1;
+        end
     end
 end
 reside = reside(reside > 0);
+firstframe = firstframe(reside > 0);
+lastframe = lastframe(reside > 0);
 
 maxT = Nframes*exptime;
 edges = 2*exptime-0.5*exptime:exptime:maxT+0.5*exptime-exptime;
