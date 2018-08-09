@@ -1,4 +1,4 @@
-function [icounts,dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb] = factors(Nframes,PBflag,spots,objs)
+function [icounts,dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs)
 
 % PB flag is true for photobleaching analysis, false otherwise
 
@@ -7,6 +7,7 @@ L = cellfun(@length,spots);
 firstframe = zeros(sum(L),1);
 s = 1; 
 p = 1; 
+v = 1;
 lastframe = firstframe;
 avgb = firstframe;
 rangeb = firstframe;
@@ -15,6 +16,8 @@ maxb = 0;
 icounts = zeros(Nframes*sum(L),4);
 brightness = cell(sum(L),1);
 bmat = NaN(sum(L),Nframes);
+lengths = cellfun(@length,spots);
+eventrate = zeros(length(spots)*sum(lengths),1);
 for u = 1:length(spots)
     spotEvents = spots{u};
     objs_link = objs{u};
@@ -52,6 +55,8 @@ for u = 1:length(spots)
             % The dark events cannot be at the start or end of a trajectory.
             lengths = cellfun(@length,dCC.PixelIdxList);
             lengths = lengths(lengths>1);
+            eventrate(v) = length(lengths)/(n*et);
+            v = v + 1;
             dtime(p:p+length(lengths)-1) = lengths;
             p = p + length(lengths);
 
@@ -71,6 +76,8 @@ for u = 1:length(spots)
             % The dark events cannot be at the start or end of a trajectory.
             lengths = cellfun(@length,dCC.PixelIdxList);
             lengths = lengths(lengths>1);
+            eventrate(v) = length(lengths)/(n*et);
+            v = v + 1;
             dtime(p:p+length(lengths)-1) = lengths;
             p = p + length(lengths);
 
