@@ -29,6 +29,10 @@ end
 % avgposns = cell(length(ctrajs),1);
 sepTrajs = cell(length(ctrajs),1);
 avgposc = zeros(sum(numframes),6);
+cmp = colormap('parula');
+reps = ceil(length(ctrajs)/length(cmp));
+cmap = repmat(cmp,reps,1);
+cmap = cmap(1:length(ctrajs),:);
 p = 1;
 for k = 1:length(ctrajs)
     isnans = isnan(ctrajs(k).trajectory);
@@ -49,10 +53,6 @@ for k = 1:length(ctrajs)
     coordstack = cat(3,coords1,coords2);
     replcoords = mean(coordstack,3);
     coords(isnan(frames2),:) = replcoords;
-    cmp = colormap('parula');
-    reps = ceil(length(ctrajs)/length(cmp));
-    cmap = repmat(cmp,reps,1);
-    cmap = cmap(1:length(ctrajs),:);
     % avgposn1 = zeros(length(inds)/2,2);
     % Add frame # to skipped frames and avg coords to skipped frames
     minitraj = zeros(numframes(k),6);
@@ -91,12 +91,12 @@ for k = 1:N
     l = l + length(colors1);
     scatter(centers1(:,1),centers1(:,2),[],colors1)
     % viscircles(centers,repmat(5,size(centers,1),1),'LineWidth',0.5,'Color',colors1);
-%     avgcenters1 = avgposc(avgposc(:,3)==k,1:2);
-%     avgcolors1 = avgposc(avgposc(:,3)==k,4:6);
-%     avgcenters(p:p+length(avgcenters1)-1,:) = avgcenters1;
-%     avgcolors(p:p+length(avgcolors1)-1,:) = avgcolors1;
-%     scatter(avgcenters1(:,1),avgcenters1(:,2),[],avgcolors1);
-%     % viscircles(avgcenters,repmat(5,size(avgcenters,1),1),'LineWidth',0.5,'Color',avgcolors1);
-%     p = p + length(avgcolors1);
+    avgcenters1 = avgposc(avgposc(:,3)==k,1:2);
+    avgcolors1 = avgposc(avgposc(:,3)==k,4:6);
+    avgcenters(p:p+length(avgcenters1)-1,:) = avgcenters1;
+    avgcolors(p:p+length(avgcolors1)-1,:) = avgcolors1;
+    scatter(avgcenters1(:,1),avgcenters1(:,2),[],avgcolors1,'^');
+    % viscircles(avgcenters,repmat(5,size(avgcenters,1),1),'LineWidth',0.5,'Color',avgcolors1);
+    p = p + length(avgcolors1);
     pause(0.5);
 end
