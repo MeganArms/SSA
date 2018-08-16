@@ -40,6 +40,14 @@ for q = 1:length(spots)
                 cens(l) = 0;
             end
             l = l + 1;
+%         elseif ~PBflag && n > 0
+%             reside(l) = (n+1)*exptime;
+%             if lastframe(t) == Nframes || firstframe(t) == 1
+%                 cens(l) = 1;
+%             else
+%                 cens(l) = 0;
+%             end
+%             l = l + 1;
         end
     end
 end
