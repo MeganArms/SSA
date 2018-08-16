@@ -70,6 +70,7 @@ for k = 1:length(combineIdx)
         % above)
 %         frames = round(tocmbn(:,3));
         storedtraj = frms(bb);
+        
         while ~isempty(storedtraj)
             frames = storedtraj;
             dur = diff(frames);
@@ -79,18 +80,22 @@ for k = 1:length(combineIdx)
             [frmsrtd,srtind] = sort(frames,'ascend');
             indnum = frmsrtd-min(frmsrtd)+1;
             tmptraj(indnum) = objnums(srtind);
-            spotEvents(l).trajectory = tmptraj;
-            spotEvents(l).coordinates = tocmbn(srtind,1:2);
-            spotEvents(l).brightness = brightness(srtind);
-            spotEvents(l).frames = frmsrtd;
-            CC = bwconncomp(isnan(tmptraj));
-            lengths = cellfun(@length,CC.PixelIdxList);
-            eventfreq(l) = sum(lengths>1)+1; % Dark time must be greater than one frame. If there are no NaNs, 1 event occurs.
-            spotEvents(l).eventfreq = eventfreq(l);
-            spotEvents(l).std = sqrt(sum(std(tocmbn(:,1:2)).^2));
-            l = l + 1;
-            if sum(dur > ftol) == 0
-                storedtraj = [];
+            if length(tmptraj) == 1 % Due to removals above, we may have created a 1-frame duration event, which is illegal
+                break
+            else
+                spotEvents(l).trajectory = tmptraj;
+                spotEvents(l).coordinates = tocmbn(srtind,1:2);
+                spotEvents(l).brightness = brightness(srtind);
+                spotEvents(l).frames = frmsrtd;
+                CC = bwconncomp(isnan(tmptraj));
+                lengths = cellfun(@length,CC.PixelIdxList);
+                eventfreq(l) = sum(lengths>1)+1; % Dark time must be greater than one frame. If there are no NaNs, 1 event occurs.
+                spotEvents(l).eventfreq = eventfreq(l);
+                spotEvents(l).std = sqrt(sum(std(tocmbn(:,1:2)).^2));
+                l = l + 1;
+                if sum(dur > ftol) == 0
+                    storedtraj = [];
+                end
             end
         end
     end
