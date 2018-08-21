@@ -13,12 +13,13 @@ C = cell(numTrajs,1); B = C; F = C; M = C; S = C;
 R = struct;
 
 for I = 1:numTrajs
-    C{I} = coords(:,trkID == I); 
-    B{I} = brightness(trkID == I);
-    F{I} = frames(trkID == I);
-    M{I} = indices(trkID == I);
-    S{I} = sigma(trkID == I);
-    R(I).trajectory = indices(trkID == I);
+    locs = trkID == I;
+    C{I} = coords(:,locs); 
+    B{I} = brightness(locs);
+    F{I} = frames(locs);
+    M{I} = indices(locs);
+    S{I} = sigma(locs);
+    R(I).trajectory = indices(locs);
 end
 
 Nframes = max(objs_link(5,:));
