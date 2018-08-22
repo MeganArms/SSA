@@ -27,17 +27,26 @@ inds = 1:length(Ccorr);
 inds = inds(clengths>1);
 seedCoords = seedCoords(clengths>1,:);
 
-eucMatrix = triu(squareform(pdist(seedCoords)));
-nn = eucMatrix < tol & eucMatrix > 0;
+% eucMatrix = triu(squareform(pdist(seedCoords)));
+% eucVect = pdist(seedCoords);
+% eucMatrix1 = triu(squareform(eucVect(1:length(seedCoords)/2)));
+% eucMatrix2 = triu(squareform(eucVect(length(seedCoords)/2:end)));
+eucVect = pdist(seedCoords);
+nn = eucVect < tol & eucVect > 0;
+% nn = eucMatrix < tol & eucMatrix > 0;
 
 %% Find trajectories in the same location
 combineIdx = cell(length(seedCoords),1);
 beenadded = [];
-for k = 1:length(seedCoords)
-    toadd = inds(nn(k,:));
+trajInd = (length(seedCoords)-1):-1:1;
+csinds = [0,cumsum(trajInd)];
+for k = 1:length(seedCoords)-1
+    ns = nn((csinds(k)+1):csinds(k+1));
+    toadd = inds([false(1,k),ns]);
+%     toadd = inds(nn(k,:));
     if sum(ismember([inds(k),toadd],beenadded))==0
         combineIdx{k} = [inds(k),toadd];
-        nn(nn(k,:),:) = 0;
+%         nn(nn(k,:),:) = 0;
         beenadded = [beenadded,combineIdx{k}];
     end
 end
