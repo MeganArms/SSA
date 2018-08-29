@@ -48,7 +48,7 @@ end
 
 % Generate output from helper functions
 [sfc,tc,semc,bc,numec,~,~] = crtd(Nframes,et,PBflag,spots,objs);
-[fc,xc,reside,cens,floc,fupc] = km(Nframes,et,PBflag,spots,objs);
+[fc,xc,reside,cens,floc,fupc] = km(Nframes,et,PBflag,spots);
 [icounts,dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs);
 [f,x,~,~,~,CC,b,xx,nume] = residenceTime(C,F,Nframes,et);
 [dtime,edges] = histcounts(dtime,logspace(-2,log(ttol),100),'Normalization','pdf');
