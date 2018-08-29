@@ -1,4 +1,4 @@
-function [f,x,reside,cens,flo,fup] = km(Nframes,exptime,PBflag,spots,objs)
+function [f,x,reside,cens,flo,fup] = km(Nframes,exptime,PBflag,spots)
 
 % PB flag is true for photobleaching analysis, false otherwise
 
@@ -9,7 +9,6 @@ cens = reside;
 firstframe = reside; lastframe = reside;
 for q = 1:length(spots)
     spotEvents = spots{q};
-    objs_link = objs{q};
     if q == 1
         idx = r:length(spotEvents);
         r = r + length(spotEvents);
@@ -18,11 +17,10 @@ for q = 1:length(spots)
         r = r + length(spotEvents);
     end
     for k = 1:length(spotEvents)
-        traj = spotEvents(k).trajectory;
+        frames = spotEvents(k).frames;
         t = idx(k);
-        inds = find(~isnan(traj));
-        firstframe(t) = objs_link(5,traj(min(inds)));
-        lastframe(t) = objs_link(5,traj(max(inds)));
+        firstframe(t) = min(frames);
+        lastframe(t) = max(frames);
         n = lastframe(t) - firstframe(t);
         if PBflag && firstframe(t) == 1 && n > 0
             reside(l) = (n+1)*exptime;
