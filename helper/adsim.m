@@ -41,9 +41,21 @@ for k = 1:Nframes
     if sum(des > Nframes) > 0
         des(des > Nframes) = Nframes;
     end
+    % Do not allow multiple events in the same spot -- slow
+%     currstate = state(:,k);
+%     overlap = ismember(spots,find(currstate));
+%     numoverlap = sum(overlap);
+%     spots = spots(~overlap);
+%     Ns = Ns - numoverlap;
+%     Ndes = numoverlap;
     % Add a tick to locations (i) at time (j) 
+    Ndes = 0;
     for l = 1:Ns
-        state(spots(l),k:des(l)) = state(spots(l),k:des(l)) + 1;
+        if state(spots(l),k) ~= 1
+            state(spots(l),k:des(l)) = state(spots(l),k:des(l)) + 1;
+        else
+            Ndes = Ndes + 1;
+        end
     end
 %     state(spots,k:des) = state(spots,k:des) + 1;
     coverage(k) = sum(state(:,k) > 0);
@@ -51,7 +63,7 @@ for k = 1:Nframes
     if k == 1
         Ndes = 0;
     else
-        Ndes = sum(state(:,k)-state(:,k-1) < 0);
+        Ndes = Ndes + sum(state(:,k)-state(:,k-1) < 0);
     end
     % Calculate the new bulk number of molecules
     Nb = C*V_FC*N - Ns + Ndes;
