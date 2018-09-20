@@ -1,11 +1,11 @@
-function [icounts,dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs)
+function [dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs)
 
 % PB flag is true for photobleaching analysis, false otherwise
 
 r = 1;
 L = cellfun(@length,spots);
 firstframe = zeros(sum(L),1);
-s = 1; 
+% s = 1; 
 p = 1; 
 v = 1;
 lastframe = firstframe;
@@ -13,7 +13,7 @@ avgb = firstframe;
 rangeb = firstframe;
 dtime = firstframe;
 maxb = 0;
-icounts = zeros(Nframes*sum(L),4);
+% icounts = zeros(Nframes*sum(L),4);
 brightness = cell(sum(L),1);
 bmat = NaN(sum(L),Nframes);
 lengths = cellfun(@length,spots);
@@ -60,17 +60,17 @@ for u = 1:length(spots)
             dtime(p:p+length(lengths)-1) = lengths;
             p = p + length(lengths);
 
-            for q = 1:length(icounts_hold)
-                % Total integrated counts of the bright event. Error will be sqrt.
-                icounts(s,1) = sum(objs_link(3,icounts_hold{q}));
-                % Length of bright event
-                icounts(s,2) = length(icounts_hold{q});
-                s = s + 1;
-            end
-            % Number of bright events in this traj in column 3
-            icounts(s-q:s-1,3) = q*ones(q,1);
-            % Length of this entire connected traj in column 4
-            icounts(s-q:s-1,4) = n*ones(q,1);
+%             for q = 1:length(icounts_hold)
+%                 % Total integrated counts of the bright event. Error will be sqrt.
+%                 icounts(s,1) = sum(objs_link(3,icounts_hold{q}));
+%                 % Length of bright event
+%                 icounts(s,2) = length(icounts_hold{q});
+%                 s = s + 1;
+%             end
+%             % Number of bright events in this traj in column 3
+%             icounts(s-q:s-1,3) = q*ones(q,1);
+%             % Length of this entire connected traj in column 4
+%             icounts(s-q:s-1,4) = n*ones(q,1);
         elseif ~PBflag && firstframe(t) ~= 1 && lastframe(t) ~= Nframes && n > 0
             % If the bright events do not overlap the start or end of the movie
             % The dark events cannot be at the start or end of a trajectory.
@@ -80,22 +80,22 @@ for u = 1:length(spots)
             v = v + 1;
             dtime(p:p+length(lengths)-1) = lengths;
             p = p + length(lengths);
-
-            for q = 1:length(icounts_hold)
-                % Total integrated counts of the bright event. Error will be sqrt.
-                icounts(s,1) = sum(objs_link(3,icounts_hold{q}));
-                % Length of bright event
-                icounts(s,2) = length(icounts_hold{q});
-                s = s + 1;
-            end
-            % Number of bright events in this traj in column 3
-            icounts(s-q:s-1,3) = q*ones(q,1);
-            % Length of this entire connected traj in column 4
-            icounts(s-q:s-1,4) = n*ones(q,1);
+% 
+%             for q = 1:length(icounts_hold)
+%                 % Total integrated counts of the bright event. Error will be sqrt.
+%                 icounts(s,1) = sum(objs_link(3,icounts_hold{q}));
+%                 % Length of bright event
+%                 icounts(s,2) = length(icounts_hold{q});
+%                 s = s + 1;
+%             end
+%             % Number of bright events in this traj in column 3
+%             icounts(s-q:s-1,3) = q*ones(q,1);
+%             % Length of this entire connected traj in column 4
+%             icounts(s-q:s-1,4) = n*ones(q,1);
         end
     end
 end
 avgAllB = mean(bmat,1,'omitnan');
 rcdfb = cumsum(avgAllB,'reverse','omitnan');
-icounts = icounts(1:s-1,:);
+% icounts = icounts(1:s-1,:);
 dtime = dtime(1:p-1);
