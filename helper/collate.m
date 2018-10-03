@@ -11,7 +11,8 @@ sigma = objs_link(7,:);
 indices = 1:length(objs_link);
 C = cell(numTrajs,1); B = C; F = C; M = C; S = C;
 R = struct;
-
+% f = @(x,y)x(y);
+h = waitbar(0,'Collating data...');
 for I = 1:numTrajs
     locs = trkID == I;
     C{I} = coords(:,locs); 
@@ -20,8 +21,10 @@ for I = 1:numTrajs
     M{I} = indices(locs);
     S{I} = sigma(locs);
     R(I).trajectory = indices(locs);
+    waitbar(I/numTrajs)
 end
-
+close(h)
+clear h
 Nframes = max(objs_link(5,:));
 Frame = cell(Nframes,1); % The objs_link index of the molecules on each frame
 for i = 1:Nframes

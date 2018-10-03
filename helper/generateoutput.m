@@ -49,10 +49,11 @@ end
 % Generate output from helper functions
 [sfc,tc,semc,bc,numec,~,~] = crtd(Nframes,et,PBflag,spots,objs);
 [fc,xc,reside,cens,floc,fupc] = km(Nframes,et,PBflag,spots);
-[dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs);
+[dtime,dcens,firstframe,lastframe,avgb,rangeb,maxb,eventrate] = factors(Nframes,et,PBflag,spots,objs);
 [f,x,~,~,~,CC,b,xx,nume] = residenceTime(C,F,Nframes,et);
-[dtime,edges] = histcounts(dtime,logspace(-2,log(ttol),100),'Normalization','pdf');
-x_d = edges(1:end-1);
+[dtimeSF,x_dtime] = ecdf(dtime,'function','survivor','censoring',dcens);
+% [dtime,edges] = histcounts(dtime,logspace(-2,log(ttol),100),'Normalization','pdf');
+% x_d = edges(1:end-1);
 
 num1 = sum(firstframe == 1); 
 fffract = num1/length(firstframe);
@@ -73,15 +74,15 @@ numperframec = histcounts(frames,1:Nframes+1);
 
 % Collect output into cell arrays
 if ~iscell(varargin{end})
-    survFuncs = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x,floc,fupc};
+    survFuncs = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x,floc,fupc,x_dtime,dtimeSF,dtime,dcens};
 %     intensities = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),x_d,dtime,avgb,rangeb,maxb,rcdfb,brightness};
-    intensities = {x_d,dtime,avgb,rangeb,maxb,rcdfb,brightness};
+    intensities = {avgb,rangeb,maxb};
     numbers = {firstframe,lastframe,num1,fffract,numlast,lffract,numtrajc,numtraj,numobj,eventfreq,Nframes,numperframe,numperframec,eventrate};
 else
     newIndex = size(survFuncs,1)+1;
-    survFuncs(newIndex,:) = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x,floc,fupc};
+    survFuncs(newIndex,:) = {sfc,tc,semc,bc,numec,fc,xc,reside,cens,CC,xx,b,nume,f,x,floc,fupc,x_dtime,dtimeSF,dtime,dcens};
 %     intensities(newIndex,:) = {icounts(:,1),icounts(:,2),icounts(:,3),icounts(:,4),x_d,dtime,avgb,rangeb,maxb,rcdfb,brightness};
-    intensities(newIndex,:) = {x_d,dtime,avgb,rangeb,maxb,rcdfb,brightness};
+    intensities(newIndex,:) = {avgb,rangeb,maxb};
     numbers(newIndex,:) = {firstframe,lastframe,num1,fffract,numlast,lffract,numtrajc,numtraj,numobj,eventfreq,Nframes,numperframe,numperframec,eventrate};
 end
 

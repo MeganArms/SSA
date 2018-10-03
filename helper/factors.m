@@ -1,4 +1,4 @@
-function [dtime,firstframe,lastframe,brightness,avgb,rangeb,maxb,rcdfb,eventrate] = factors(Nframes,et,PBflag,spots,objs)
+function [dtime,dcens,firstframe,lastframe,avgb,rangeb,maxb,eventrate] = factors(Nframes,et,PBflag,spots,objs)
 
 % PB flag is true for photobleaching analysis, false otherwise
 
@@ -12,10 +12,11 @@ lastframe = firstframe;
 avgb = firstframe;
 rangeb = firstframe;
 dtime = firstframe;
+dcens = firstframe;
 maxb = 0;
 % icounts = zeros(Nframes*sum(L),4);
-brightness = cell(sum(L),1);
-bmat = NaN(sum(L),Nframes);
+% brightness = cell(sum(L),1);
+% bmat = NaN(sum(L),Nframes);
 lengths = cellfun(@length,spots);
 eventrate = zeros(length(spots)*sum(lengths),1);
 for u = 1:length(spots)
@@ -34,8 +35,8 @@ for u = 1:length(spots)
         inds = find(~isnan(traj));
         frames = objs_link(5,traj(inds));
         int_counts = objs_link(3,traj(inds));
-        bmat(t,frames) = int_counts;
-        brightness{t} = cumsum(bmat(t,:),'reverse','omitnan');
+%         bmat(t,frames) = int_counts;
+%         brightness{t} = cumsum(bmat(t,:),'reverse','omitnan');
         maxb = max([maxb,max(int_counts)]);
         avgb(t) = mean(int_counts);
         rangeb(t) = range(int_counts);
@@ -45,19 +46,24 @@ for u = 1:length(spots)
 
         brights = ~isnan(traj);
         darks = ~brights;
-        bCC = bwconncomp(brights);
+%         bCC = bwconncomp(brights);
         dCC = bwconncomp(darks);
 
-        icounts_hold = struct2cell(regionprops(bCC,traj,'PixelValues'));
+%         icounts_hold = struct2cell(regionprops(bCC,traj,'PixelValues'));
 
         if PBflag && firstframe(t) == 1 && lastframe(t) ~= Nframes && n > 0
             % If the bright events do not overlap the start or end of the movie
             % The dark events cannot be at the start or end of a trajectory.
             lengths = cellfun(@length,dCC.PixelIdxList);
             lengths = lengths(lengths>1);
+            censoredDarkEvent = Nframes - lastframe(t);
+            lengths(length(lengths)+1) = censoredDarkEvent;
             eventrate(v) = length(lengths)/(n*et);
             v = v + 1;
             dtime(p:p+length(lengths)-1) = lengths;
+            dcenstmp = zeros(length(lengths),1);
+            dcenstmp(end) = 1;
+            dcens(p:p+length(lengths)-1) = dcenstmp;
             p = p + length(lengths);
 
 %             for q = 1:length(icounts_hold)
@@ -76,10 +82,16 @@ for u = 1:length(spots)
             % The dark events cannot be at the start or end of a trajectory.
             lengths = cellfun(@length,dCC.PixelIdxList);
             lengths = lengths(lengths>1);
+            censoredDarkEvent = Nframes - lastframe(t);
+            lengths(length(lengths)+1) = censoredDarkEvent;
             eventrate(v) = length(lengths)/(n*et);
             v = v + 1;
             dtime(p:p+length(lengths)-1) = lengths;
+            dcenstmp = zeros(length(lengths),1);
+            dcenstmp(end) = 1;
+            dcens(p:p+length(lengths)-1) = dcenstmp;
             p = p + length(lengths);
+            
 % 
 %             for q = 1:length(icounts_hold)
 %                 % Total integrated counts of the bright event. Error will be sqrt.
@@ -92,10 +104,25 @@ for u = 1:length(spots)
 %             icounts(s-q:s-1,3) = q*ones(q,1);
 %             % Length of this entire connected traj in column 4
 %             icounts(s-q:s-1,4) = n*ones(q,1);
+        elseif ~PBflag && firstframe(t) ~= 1 && lastframe(t) == Nframes && n > 0
+            % If the bright events do not overlap the start or end of the movie
+            % The dark events cannot be at the start or end of a trajectory.
+            lengths = cellfun(@length,dCC.PixelIdxList);
+            lengths = lengths(lengths>1);
+            eventrate(v) = length(lengths)/(n*et);
+            v = v + 1;
+            dtime(p:p+length(lengths)-1) = lengths;
+            dcenstmp = zeros(length(lengths),1);
+            dcens(p:p+length(lengths)-1) = dcenstmp;
+            p = p + length(lengths);
+            
+            % Something about icounts that I'm not including here because
+            % this part was added after commenting out icounts sections
         end
     end
 end
-avgAllB = mean(bmat,1,'omitnan');
-rcdfb = cumsum(avgAllB,'reverse','omitnan');
+% avgAllB = mean(bmat,1,'omitnan');
+% rcdfb = cumsum(avgAllB,'reverse','omitnan');
 % icounts = icounts(1:s-1,:);
 dtime = dtime(1:p-1);
+dcens = dcens(1:p-1);
